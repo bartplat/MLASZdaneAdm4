@@ -1,0 +1,19 @@
+Package: MLASZdaneAdm4
+Title: Pakiet zawierający funkcje potrzebne do obliczania zbioru wskaźników dla
+    4. edycji monitoringu z użyciem danych rejestrowych
+Version: 0.0.0.9000
+Authors@R: 
+    person("Bartłomiej", "Płatkowski", "b.platkowski@ibe.edu.pl", role = c("aut", "cre"),
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: Pakiet zawiera funkcje potrzebne do obliczania wskaźników
+    zagregowanych dla 4. edycji monitoringu z użyciem danych rejestrowych.
+    Użycie tych funkcji w celu obliczania wskaźników wymaga użycia pakietu
+    MLASZdane zawierającego silnik agregacji.
+License: MIT + file LICENSE
+Depends:
+    R (>= 4.3.1),
+    MLASZdane (>= 0.4.1)
+Encoding: UTF-8
+VignetteBuilder: knitr
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
