@@ -78,7 +78,7 @@ dummyP4 = function(agregat, rspo, seed = NULL) {
                          size = 2))
 
   agregat = agregat %>%
-    filter(teryt_woj %in% c(sample(unique(teryt_woj), size = 3, replace = TRUE))) %>%
+    filter(teryt_woj %in% c(sample(unique(teryt_woj), size = 3, replace = FALSE))) %>%
     filter(teryt_pow %in% c(sample(unique(teryt_pow), size = 25, replace = TRUE))) %>%
     rowwise() %>%
     mutate(typ_szk = sample(obj_typ_szk, replace = TRUE, size = 1)) %>%
@@ -190,10 +190,7 @@ dummyP3 = function(indyw, seed = NULL) {
     ) %>%
     ungroup() %>%
     mutate(
-      mlodociany = case_when(
-        typ_szk %in% "Branżowa szkoła I stopnia" & praca %in% 1 ~ sample(c(0, 1), prob = c(0.1, 0.9), size = 1),
-        typ_szk %in% "Branżowa szkoła II stopnia" & praca %in% 1 ~ sample(c(0, 1), prob = c(0.1, 0.9), size = 1),
-        typ_szk %in% "Technikum" & praca %in% 1 ~ sample(c(0, 1), prob = c(0.1, 0.9), size = 1)),
+      mlodociany = ifelse(typ_szk %in% c("Branżowa szkoła I stopnia", "Branżowa szkoła II stopnia", "Technikum") & praca %in% 1, sample(c(0, 1), prob = c(0.1, 0.9), size = 1), NA_integer_),
       bezrobocie = ifelse(praca %in% c(1:7), NA_integer_, sample(c(0, 1), prob = c(0.85, 0.15))),
       wynagrodzenie = ifelse(praca %in% c(2:7), runif(n = 1, min = 450, max = 5000), NA_integer_),
       wynagrodzenie_uop = ifelse(praca %in% 1, runif(n = 1, min = 900, max = 7500), NA_integer_),
@@ -314,7 +311,8 @@ dummyP2 = function(osobomies, seed = NULL) {
       dyscyplina_wiodaca_kont = ifelse(nauka_studia %in% 1,
                                        sample(dziedziny_dyscypliny$dyscyplina_wiodaca_kont, size = 1), NA_character_)
     ) %>%
-    left_join(dziedziny_dyscypliny)
+    left_join(dziedziny_dyscypliny) %>%
+    select(-c(nauka_bs2st:nauka_kuz))
 
   return(p2_dummy)
 }
