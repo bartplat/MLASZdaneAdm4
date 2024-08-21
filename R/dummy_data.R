@@ -30,7 +30,7 @@
 #' @return data.frame
 #' @importFrom tibble is_tibble
 #' @importFrom dplyr %>% filter rowwise mutate ungroup slice_sample row_number
-#' case_when pull left_join join_by select
+#' case_when left_join join_by select
 #' @importFrom tidyr uncount
 #' @export
 dummyP4 = function(agregat, rspo, seed = NULL) {
@@ -104,13 +104,13 @@ dummyP4 = function(agregat, rspo, seed = NULL) {
     mutate(
       nazwa_zaw = case_when(
 
-        typ_szk %in% "Technikum" ~ sample(pull(zawody[zawody$typ_szk %in% "Technikum", "nazwa_zaw"]), replace = TRUE, size = 1, prob = unname(unlist(zawody[zawody$typ_szk %in% "Technikum", "ods"]))),
+        typ_szk %in% "Technikum" ~ sample(zawody[zawody$typ_szk %in% "Technikum", "nazwa_zaw"], replace = TRUE, size = 1, prob = unname(unlist(zawody[zawody$typ_szk %in% "Technikum", "ods"]))),
 
-        typ_szk %in% "Branżowa szkoła I stopnia" ~ sample(pull(zawody[zawody$typ_szk %in% "Branżowa szkoła I stopnia", "nazwa_zaw"]), replace = TRUE, size = 1, prob = unname(unlist(zawody[zawody$typ_szk %in% "Branżowa szkoła I stopnia", "ods"]))),
+        typ_szk %in% "Branżowa szkoła I stopnia" ~ sample(zawody[zawody$typ_szk %in% "Branżowa szkoła I stopnia", "nazwa_zaw"], replace = TRUE, size = 1, prob = unname(unlist(zawody[zawody$typ_szk %in% "Branżowa szkoła I stopnia", "ods"]))),
 
-        typ_szk %in% "Szkoła policealna" ~ sample(pull(zawody[zawody$typ_szk %in% "Szkoła policealna", "nazwa_zaw"]), replace = TRUE, size = 1, prob = unname(unlist(zawody[zawody$typ_szk %in% "Szkoła policealna", "ods"]))),
+        typ_szk %in% "Szkoła policealna" ~ sample(zawody[zawody$typ_szk %in% "Szkoła policealna", "nazwa_zaw"], replace = TRUE, size = 1, prob = unname(unlist(zawody[zawody$typ_szk %in% "Szkoła policealna", "ods"]))),
 
-        typ_szk %in% "Branżowa szkoła II stopnia" ~ sample(pull(zawody[zawody$typ_szk %in% "Branżowa szkoła II stopnia", "nazwa_zaw"]), replace = TRUE, size = 1, prob = unname(unlist(zawody[zawody$typ_szk %in% "Branżowa szkoła II stopnia", "ods"]))),
+        typ_szk %in% "Branżowa szkoła II stopnia" ~ sample(zawody[zawody$typ_szk %in% "Branżowa szkoła II stopnia", "nazwa_zaw"], replace = TRUE, size = 1, prob = unname(unlist(zawody[zawody$typ_szk %in% "Branżowa szkoła II stopnia", "ods"]))),
 
         typ_szk %in% c("Liceum ogólnokształcące", "Liceum dla dorosłych", "Szkoła specjalna przysposabiająca do pracy") ~ NA_character_)) %>%
     left_join(zawody %>%
