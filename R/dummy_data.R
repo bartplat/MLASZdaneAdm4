@@ -78,6 +78,9 @@ dummyP4 = function(agregat, rspo, seed = NULL) {
                          size = 2))
 
   agregat = agregat %>%
+    rowwise() %>%
+    mutate(powiat_sr_wynagrodzenie = runif(n = 1, min = 4200, max = 11300)) %>%
+    ungroup() %>%
     filter(teryt_woj %in% c(sample(unique(teryt_woj), size = 3, replace = FALSE))) %>%
     filter(teryt_pow %in% c(sample(unique(teryt_pow), size = 25, replace = TRUE))) %>%
     rowwise() %>%
@@ -132,7 +135,7 @@ dummyP4 = function(agregat, rspo, seed = NULL) {
     ) %>%
     ungroup() %>%
     select(id_abs, rok_abs, rok_ur, plec, id_szk, typ_szk,
-           teryt_woj, woj_nazwa, teryt_pow, nazwa_pow_szk, podregion,
+           teryt_woj, woj_nazwa, teryt_pow, nazwa_pow_szk, powiat_sr_wynagrodzenie, podregion,
            kod_zaw, nazwa_zaw, branza,
            abs_w_cke, abs_w_sio, abs_w_polon, abs_w_zus,
            adres_szk, nazwa_szk)
@@ -162,7 +165,7 @@ dummyP4 = function(agregat, rspo, seed = NULL) {
 #' @export
 dummyP3 = function(indyw, seed = NULL) {
   col_p4 = c("id_abs", "rok_abs", "id_szk", "typ_szk", "teryt_woj", "teryt_pow",
-             "plec", "branza", "nazwa_zaw", "podregion")
+             "plec", "branza", "nazwa_zaw", "podregion", "powiat_sr_wynagrodzenie")
 
   stopifnot(is.character(seed) | is.numeric(seed) | is.null(seed),
             is_tibble(indyw) | is.data.frame(indyw),
@@ -194,7 +197,6 @@ dummyP3 = function(indyw, seed = NULL) {
       bezrobocie = ifelse(praca %in% c(1:7), NA_integer_, sample(c(0, 1), prob = c(0.85, 0.15))),
       wynagrodzenie = ifelse(praca %in% c(2:7), runif(n = 1, min = 450, max = 5000), NA_integer_),
       wynagrodzenie_uop = ifelse(praca %in% 1, runif(n = 1, min = 900, max = 7500), NA_integer_),
-      powiat_sr_wynagrodzenie = ifelse(praca %in% c(1:7), runif(n = 1, min = 4200, max = 11300), NA_integer_),
       status_nieustalony = ifelse(is.na(praca), 1, 0),
       nauka = ifelse(status_nieustalony %in% 1, 0, sample(c(0, 1), prob = c(0.6, 0.4))),
       nauka2 = nauka,
@@ -311,7 +313,7 @@ dummyP2 = function(osobomies, seed = NULL) {
       dyscyplina_wiodaca_kont = ifelse(nauka_studia %in% 1,
                                        sample(dziedziny_dyscypliny$dyscyplina_wiodaca_kont, size = 1), NA_character_)
     ) %>%
-    left_join(dziedziny_dyscypliny) %>%
+    left_join(dziedziny_dyscypliny, join_by(dyscyplina_wiodaca_kont)) %>%
     select(-c(nauka_bs2st:nauka_kuz))
 
   return(p2_dummy)
