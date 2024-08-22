@@ -30,7 +30,7 @@
 #' @return data.frame
 #' @importFrom tibble is_tibble
 #' @importFrom dplyr %>% filter rowwise mutate ungroup slice_sample row_number
-#' case_when left_join join_by select
+#' case_when left_join join_by select n distinct
 #' @importFrom tidyr uncount
 #' @export
 dummyP4 = function(agregat, rspo, seed = NULL) {
@@ -251,7 +251,7 @@ dummyP3 = function(indyw, seed = NULL) {
 #' @return data.frame
 #' @importFrom tibble is_tibble
 #' @importFrom dplyr %>% group_by slice_sample ungroup select mutate rowwise
-#' case_when all_of
+#' case_when all_of distinct
 #' @importFrom tidyr uncount
 #' @export
 dummyP2 = function(osobomies, seed = NULL) {
