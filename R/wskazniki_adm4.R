@@ -30,17 +30,29 @@ dane_szkoly = function(x) {
 #' poziomie agregacji.
 #' @param x ramka danych pośrednich P4
 #' @return numeric
-#' @importFrom dplyr %>% select .data distinct n_distinct
+#' @importFrom dplyr %>% select distinct n_distinct
 #' @importFrom tibble is_tibble
 #' @export
 l_abs = function(x) {
   stopifnot(is.data.frame(x) | is_tibble(x))
 
-  x %>%
-    select(.data$id_abs, .data$rok_abs) %>%
-    # distinct() %>% # ???
-    n_distinct() %>%
-    return()
+  x = x %>%
+    select(id_abs, rok_abs) %>%
+    distinct()
+
+  if (n_distinct(x$id_abs) == nrow(x)) {
+    x %>%
+      select(id_abs, rok_abs) %>%
+      n_distinct() %>%
+      return()
+  } else {
+    warning("Liczba unikalnych kombinacji `id_abs` i `rok_abs` jest ")
+    x %>%
+      select(id_abs, rok_abs) %>%
+      n_distinct() %>%
+      return()
+  }
+
 }
 #' @title Obliczanie wskaźników dla 4. edycji monitoringu - dane administracyjne
 #' @description Funkcja oblicza wskaźnik opisujący liczbę kobiet wśród
