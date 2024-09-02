@@ -22,7 +22,7 @@
 #'  \item{\code{\link{l_abs_zrodla}},}
 #'  \item{\code{\link{status_S3_mies}},}
 #'  \item{\code{\link{zawody_status_S3}},}
-#'  \item{\code{\link{E2_nauka_kontyn}},
+#'  \item{\code{\link{E2_nauka_kontyn}},}
 #'  \item{\code{\link{Z4_ods_prac_mies}},}
 #'  \item{\code{\link{Z8_formy_prac_mies}},}
 #'  \item{\code{\link{Z9_kont_mlod}},}
@@ -74,19 +74,19 @@ agreguj_1rokpo_adm4 = function(wsk2, wsk3, wsk4, podzial_grupy, rok_abso) {
   wskazniki_3 = agreguj_wskazniki(
     wskazniki = wsk3, grupy = podzial_grupy,
     przekazArgumenty = list("rok_abso" = rok_abso, "wsk2" = wsk2),
-    S3_01 = S3_mies(.data, min(rok_abso), 1, max(rok_abso), 1),
-    S3_02 = S3_mies(.data, min(rok_abso), 2, max(rok_abso), 2),
-    S3_03 = S3_mies(.data, min(rok_abso), 3, max(rok_abso), 3),
-    S3_04 = S3_mies(.data, min(rok_abso), 4, max(rok_abso), 4),
-    S3_05 = S3_mies(.data, min(rok_abso), 5, max(rok_abso), 5),
-    S3_06 = S3_mies(.data, min(rok_abso), 6, max(rok_abso), 6),
-    S3_07 = S3_mies(.data, min(rok_abso), 7, max(rok_abso), 7),
-    S3_08 = S3_mies(.data, min(rok_abso), 8, max(rok_abso), 8),
-    S3_09 = S3_mies(.data, min(rok_abso), 9, max(rok_abso), 9),
-    S3_10 = S3_mies(.data, min(rok_abso), 10, max(rok_abso), 10),
-    S3_11 = S3_mies(.data, min(rok_abso), 11, max(rok_abso), 11),
-    S3_12 = S3_mies(.data, min(rok_abso), 12, max(rok_abso), 12),
-    tab_s3_zaw = zawody_S3(.data, min(rok_abso), 12, max(rok_abso), 12),
+    S3_01 = status_S3_mies(.data, min(rok_abso), 1, max(rok_abso), 1),
+    S3_02 = status_S3_mies(.data, min(rok_abso), 2, max(rok_abso), 2),
+    S3_03 = status_S3_mies(.data, min(rok_abso), 3, max(rok_abso), 3),
+    S3_04 = status_S3_mies(.data, min(rok_abso), 4, max(rok_abso), 4),
+    S3_05 = status_S3_mies(.data, min(rok_abso), 5, max(rok_abso), 5),
+    S3_06 = status_S3_mies(.data, min(rok_abso), 6, max(rok_abso), 6),
+    S3_07 = status_S3_mies(.data, min(rok_abso), 7, max(rok_abso), 7),
+    S3_08 = status_S3_mies(.data, min(rok_abso), 8, max(rok_abso), 8),
+    S3_09 = status_S3_mies(.data, min(rok_abso), 9, max(rok_abso), 9),
+    S3_10 = status_S3_mies(.data, min(rok_abso), 10, max(rok_abso), 10),
+    S3_11 = status_S3_mies(.data, min(rok_abso), 11, max(rok_abso), 11),
+    S3_12 = status_S3_mies(.data, min(rok_abso), 12, max(rok_abso), 12),
+    tab_s3_zaw = zawody_status_S3(.data, min(rok_abso), 12, max(rok_abso), 12),
     E2_nauka_kontyn = E2_nauka_kontyn(.data, rok_abso, 12),
     Z4_ucz = Z4_ods_prac_mies(.data, min(rok_abso), 9, max(rok_abso), 12, TRUE),
     Z4_nie_ucz = Z4_ods_prac_mies(.data, min(rok_abso), 9, max(rok_abso), 12, FALSE),
@@ -121,7 +121,7 @@ agreguj_1rokpo_adm4 = function(wsk2, wsk3, wsk4, podzial_grupy, rok_abso) {
 #' monitoringu na danych administracyjnych
 #' @description Funkcja obliczająca wskaźniki na poziomie zagregowanym na
 #' potrzeby Aneksu w raportach "1rokpo" - liczy mniej wskaźników niż
-#' \code{\link{agreguj_1rokpo_adm_2}}
+#' \code{\link{agreguj_1rokpo_adm4}}
 #' @param wsk3 ramka danych z tabeli pośredniej nr 3 (P3) z wynikami z 4.
 #' rundy monitoringu na danych administracyjnych
 #' @param wsk4 ramka danych z tabeli pośredniej nr 4 (P4) z wynikami z 4.
@@ -174,8 +174,8 @@ agreguj_aneks_1rokpo_adm4 = function(wsk3, wsk4, podzial_grupy, rok_abso) {
   wskazniki_3 = agreguj_wskazniki(
     wskazniki = wsk3, grupy = podzial_grupy,
     przekazArgumenty = list("rok_abso" = rok_abso),
-    S3_12 = S3_mies(.data, min(rok_abso), 12, max(rok_abso), 12),
-    tab_s3_zaw = zawody_S3(.data, min(rok_abso), 12, max(rok_abso), 12),
+    S3_12 = status_S3_mies(.data, min(rok_abso), 12, max(rok_abso), 12),
+    tab_s3_zaw = zawody_status_S3(.data, min(rok_abso), 12, max(rok_abso), 12),
     E2_nauka_kontyn = E2_nauka_kontyn(.data, rok_abso, 12),
     Z4_ucz = Z4_ods_prac_mies(.data, min(rok_abso), 9, max(rok_abso), 12, TRUE),
     Z4_nie_ucz = Z4_ods_prac_mies(.data, min(rok_abso), 9, max(rok_abso), 12, FALSE),
@@ -247,8 +247,8 @@ agreguj_szkozaw_1rokpo_adm4 = function(wsk3, wsk4, podzial_grupy, rok_abso) {
   wskazniki_3 = agreguj_wskazniki(
     wskazniki = wsk3, grupy = podzial_grupy,
     przekazArgumenty = list("rok_abso" = rok_abso),
-    S3_12 = S3_mies(.data, min(rok_abso), 12, max(rok_abso), 12),
-    tab_s3_zaw = zawody_S3(.data, min(rok_abso), 12, max(rok_abso), 12)
+    S3_12 = status_S3_mies(.data, min(rok_abso), 12, max(rok_abso), 12),
+    tab_s3_zaw = zawody_status_S3(.data, min(rok_abso), 12, max(rok_abso), 12)
   )
 
   cat("\nŁączenie wskaźników: ", format(Sys.time(), "%Y.%m.%d %H:%M:%S"), "\n", sep = "")
@@ -332,19 +332,19 @@ agreguj_woj_branz_adm4 = function(wsk3, wsk4, podzial_grupy, rok_abso) {
   cat("\nWskaźniki wykorzystujące P3: ", format(Sys.time(), "%Y.%m.%d %H:%M:%S"), "\n", sep = "")
   wskazniki_3 = agreguj_wskazniki(
     wsk3, podzial_grupy, list("rok_abso" = rok_abso),
-    S3_01 = S3_mies(.data, min(rok_abso), 1, max(rok_abso), 1),
-    S3_02 = S3_mies(.data, min(rok_abso), 2, max(rok_abso), 2),
-    S3_03 = S3_mies(.data, min(rok_abso), 3, max(rok_abso), 3),
-    S3_04 = S3_mies(.data, min(rok_abso), 4, max(rok_abso), 4),
-    S3_05 = S3_mies(.data, min(rok_abso), 5, max(rok_abso), 5),
-    S3_06 = S3_mies(.data, min(rok_abso), 6, max(rok_abso), 6),
-    S3_07 = S3_mies(.data, min(rok_abso), 7, max(rok_abso), 7),
-    S3_08 = S3_mies(.data, min(rok_abso), 8, max(rok_abso), 8),
-    S3_09 = S3_mies(.data, min(rok_abso), 9, max(rok_abso), 9),
-    S3_10 = S3_mies(.data, min(rok_abso), 10, max(rok_abso), 10),
-    S3_11 = S3_mies(.data, min(rok_abso), 11, max(rok_abso), 11),
-    S3_12 = S3_mies(.data, min(rok_abso), 12, max(rok_abso), 12),
-    tab_s3_zaw = zawody_S3(.data, min(rok_abso), 12, max(rok_abso), 12),
+    S3_01 = status_S3_mies(.data, min(rok_abso), 1, max(rok_abso), 1),
+    S3_02 = status_S3_mies(.data, min(rok_abso), 2, max(rok_abso), 2),
+    S3_03 = status_S3_mies(.data, min(rok_abso), 3, max(rok_abso), 3),
+    S3_04 = status_S3_mies(.data, min(rok_abso), 4, max(rok_abso), 4),
+    S3_05 = status_S3_mies(.data, min(rok_abso), 5, max(rok_abso), 5),
+    S3_06 = status_S3_mies(.data, min(rok_abso), 6, max(rok_abso), 6),
+    S3_07 = status_S3_mies(.data, min(rok_abso), 7, max(rok_abso), 7),
+    S3_08 = status_S3_mies(.data, min(rok_abso), 8, max(rok_abso), 8),
+    S3_09 = status_S3_mies(.data, min(rok_abso), 9, max(rok_abso), 9),
+    S3_10 = status_S3_mies(.data, min(rok_abso), 10, max(rok_abso), 10),
+    S3_11 = status_S3_mies(.data, min(rok_abso), 11, max(rok_abso), 11),
+    S3_12 = status_S3_mies(.data, min(rok_abso), 12, max(rok_abso), 12),
+    tab_s3_zaw = zawody_status_S3(.data, min(rok_abso), 12, max(rok_abso), 12),
     Z4_ucz = Z4_ods_prac_mies(.data, min(rok_abso), 9, max(rok_abso), 12, TRUE),
     Z4_nie_ucz = Z4_ods_prac_mies(.data, min(rok_abso), 9, max(rok_abso), 12, FALSE),
     W3_ucz = W3_sr_doch_uop(.data, rok_abso, 9, 12, TRUE),

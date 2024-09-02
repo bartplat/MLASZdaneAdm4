@@ -26,7 +26,7 @@ data frame
 \description{
 Funkcja obliczająca wskaźniki na poziomie zagregowanym na
 potrzeby Aneksu w raportach "1rokpo" - liczy mniej wskaźników niż
-\code{\link{agreguj_1rokpo_adm_2}}
+\code{\link{agreguj_1rokpo_adm4}}
 }
 \seealso{
 \code{\link{agreguj_wskazniki}} oraz przekazywane do niej funkcje

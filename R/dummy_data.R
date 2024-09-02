@@ -149,12 +149,12 @@ dummyP4 = function(agregat, rspo, seed = NULL) {
 #' @details Zbiór tworzony przez tę funkcję ma odzwierciedlać tabelę pośrednią
 #' \code{P3} w stopniu, jaki jest wymagany do przetestowania funkcji liczących
 #' wskaźniki zagregowane. Tabela \code{P4}, a konkretniej jej symulowana wersja
-#' tworzona przez funkcję \link{\code{dummyP4}}, to tabela zawierająca
+#' tworzona przez funkcję \code{\link{dummyP4}}, to tabela zawierająca
 #' niezmienne w czasie (każdy wiersz to osobny absolwent) informacje o
 #' absolwentach na podstawie, której tworzony jest zbiór osobo-miesięcy
 #' opisujący epizody edukacyjno-zawodowe, czyli tabelę \code{P3}.
 #' @param indyw tabela pośrednia \code{P4} w wersji symulowanej (np. za pomocą
-#' funkcji \link{\code{dummyP4}})
+#' funkcji \code{\link{dummyP4}})
 #' @param seed wartość ziarna generatora - domyślna wartość to \code{NULL}
 #' (argument opcjonalny na wypadek potrzeby powtarzalności obliczeń)
 #' @return data.frame

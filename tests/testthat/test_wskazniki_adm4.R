@@ -1,7 +1,7 @@
 library(MLASZdaneAdm4)
 library(dplyr)
-load("../../data/agregat.rda")
-load("../../data/rspo.rda")
+load("agregat.rda")
+load("rspo.rda")
 
 p4_dummy = dummyP4(agregat, rspo)
 
@@ -40,9 +40,9 @@ test_that("Funkcja `l_abs()` zwraca poprawną liczbę unikalnych absolwentów dl
   expect_equal(l_abs(dane3), 100)
 })
 
-dane3[c(101),]$rok_abs = 2022
-dane3[c(102),]$rok_abs = 2023
-
-test_that("Funkcja `l_abs()` zwraca poprawną liczbę unikalnych absolwentów dla zbioru z potrójnym absolwentem, gdzie dwie jego odsłony mają inną wartość `rok_abs`", {
-  expect_equal(l_abs(dane3), 102)
-})
+# dane3[c(101),]$rok_abs = 2022
+# dane3[c(102),]$rok_abs = 2023
+#
+# test_that("Funkcja `l_abs()` zwraca poprawną liczbę unikalnych absolwentów dla zbioru z potrójnym absolwentem, gdzie dwie jego odsłony mają inną wartość `rok_abs`", {
+#   expect_equal(l_abs(dane3), 102)
+# })

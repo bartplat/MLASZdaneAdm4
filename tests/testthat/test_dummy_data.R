@@ -1,6 +1,6 @@
 library(MLASZdaneAdm4)
-load("../../data/agregat.rda")
-load("../../data/rspo.rda")
+load("agregat.rda")
+load("rspo.rda")
 
 p4_dummy = dummyP4(agregat, rspo)
 
