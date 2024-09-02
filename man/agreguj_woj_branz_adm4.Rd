@@ -35,7 +35,7 @@ używane do obliczania konkretnych wskaźników zagregowanych:
 \item{\code{\link{l_abs}},}
 \item{\code{\link{l_kobiet}},}
 \item{\code{\link{l_abs_zrodla}},}
-\item{\code{\link{liczebnosc_zawody}},}
+\item{\code{\link{licz_zawody}},}
 \item{\code{\link{status_S3_mies}},}
 \item{\code{\link{zawody_status_S3}},}
 \item{\code{\link{E2_nauka_kontyn}},}

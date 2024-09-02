@@ -146,7 +146,7 @@ status_S3_mies = function(x, rok_od, mies_od, rok_do, mies_do) {
 #' automatycznym. Jeśli lista będąca wsadem tabeli generowałaby pustą
 #' tabelę, to zwracana jest lista o `n` równym 0 oraz z brakiem danych dla
 #' pozostałych elementów listy. Funkcja wykorzystuje inną funkcję z pakietu,
-#' czyli \code{\link{S3_mies}}.
+#' czyli \code{\link{status_S3_mies}}.
 #' @param x ramka danych pośrednich P3
 #' @param rok_od rok początku okresu, dla którego ma być policzony wskaźnik
 #' @param mies_od miesiąc początku okresu, dla którego ma być policzony wskaźnik
@@ -170,14 +170,14 @@ zawody_status_S3 = function(x, rok_od, mies_od, rok_do, mies_do) {
                                    "Branżowa szkoła II stopnia"))) {
     tab = x %>%
       group_by(.data$nazwa_zaw) %>%
-      S3_mies(rok_od, mies_od, rok_do, mies_do) %>%
+      status_S3_mies(rok_od, mies_od, rok_do, mies_do) %>%
       as_tibble() %>%
       ungroup() %>%
       arrange(desc(n))
 
     tot = x %>%
       filter(.data$nazwa_zaw %in% unique(tab$nazwa_zaw)) %>%
-      S3_mies(rok_od, mies_od, rok_do, mies_do) %>%
+      status_S3_mies(rok_od, mies_od, rok_do, mies_do) %>%
       as_tibble() %>%
       mutate(nazwa_zaw = "Ogółem") %>%
       select(nazwa_zaw, n:neet)
@@ -750,7 +750,7 @@ liczebnosc_branze_kont = function(x, branza_kont_df, rok, mies = 12) {
 #' @export
 liczebnosc_dziedziny = function(x, dziedzina_kont_df, rok, mies = 12) {
   stopifnot(is.data.frame(x),
-            is.data.frame(dziedzina_kont_df | is_tibble(dziedzina_kont_df)),
+            is.data.frame(dziedzina_kont_df) | is_tibble(dziedzina_kont_df),
             rok %in% c(2022, 2023),
             mies %in% c(1:12))
 
@@ -805,7 +805,7 @@ liczebnosc_dziedziny = function(x, dziedzina_kont_df, rok, mies = 12) {
 #' @export
 liczebnosc_dyscypliny = function(x, dyscyplina_kont_df, rok, mies = 12) {
   stopifnot(is.data.frame(x),
-            is.data.frame(dyscyplina_kont_df | is_tibble(dyscyplina_kont_df)),
+            is.data.frame(dyscyplina_kont_df) | is_tibble(dyscyplina_kont_df),
             rok %in% c(2022, 2023),
             mies %in% c(1:12))
 

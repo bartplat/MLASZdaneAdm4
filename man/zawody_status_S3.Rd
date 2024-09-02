@@ -30,5 +30,5 @@ Zwracana lista służy jako wsad do tabeli w szkolnym raporcie
 automatycznym. Jeśli lista będąca wsadem tabeli generowałaby pustą
 tabelę, to zwracana jest lista o \code{n} równym 0 oraz z brakiem danych dla
 pozostałych elementów listy. Funkcja wykorzystuje inną funkcję z pakietu,
-czyli \code{\link{S3_mies}}.
+czyli \code{\link{status_S3_mies}}.
 }

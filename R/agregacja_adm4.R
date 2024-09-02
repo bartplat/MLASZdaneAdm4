@@ -282,7 +282,7 @@ agreguj_szkozaw_1rokpo_adm4 = function(wsk3, wsk4, podzial_grupy, rok_abso) {
 #'  \item{\code{\link{l_abs}},}
 #'  \item{\code{\link{l_kobiet}},}
 #'  \item{\code{\link{l_abs_zrodla}},}
-#'  \item{\code{\link{liczebnosc_zawody}},}
+#'  \item{\code{\link{licz_zawody}},}
 #'  \item{\code{\link{status_S3_mies}},}
 #'  \item{\code{\link{zawody_status_S3}},}
 #'  \item{\code{\link{E2_nauka_kontyn}},}
@@ -327,7 +327,7 @@ agreguj_woj_branz_adm4 = function(wsk3, wsk4, podzial_grupy, rok_abso) {
     l_kobiet = l_kobiet(.data),
     l_abs_zrodla = l_abs_zrodla(.data),
     liczebnosc_branze_ucz = liczebnosc_branze_ucz(.data),
-    liczebnosc_zawody = liczebnosc_zawody(.data))
+    liczebnosc_zawody = licz_zawody(.data))
 
   cat("\nWskaźniki wykorzystujące P3: ", format(Sys.time(), "%Y.%m.%d %H:%M:%S"), "\n", sep = "")
   wskazniki_3 = agreguj_wskazniki(
