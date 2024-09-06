@@ -118,7 +118,7 @@ agreguj_1rokpo_adm4 = function(wsk2, wsk3, wsk4, podzial_grupy, rok_abso) {
     sink()
     return(wskazniki)
   },
-  error = function(e) {message("Skrypt zwrócił błąd: ", e$message)},
+  error = function(e) {cat("Skrypt zwrócił błąd: ", e$message, "\n")},
   finally = {sink()})
 }
 #' @title Obliczanie wskaźników na poziomie zagregowanym dla 4. edycji
