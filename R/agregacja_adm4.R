@@ -41,81 +41,85 @@
 #' @importFrom dplyr %>% filter .data left_join
 #' @importFrom tibble is_tibble
 agreguj_1rokpo_adm4 = function(wsk2, wsk3, wsk4, podzial_grupy, rok_abso) {
-  stopifnot(is.data.frame(wsk2) | is_tibble(wsk2),
-            is.data.frame(wsk3) | is_tibble(wsk3),
-            is.data.frame(wsk4) | is_tibble(wsk4),
-            is.data.frame(podzial_grupy) | is_tibble(podzial_grupy),
-            rok_abso %in% c(2022, 2023) & length(rok_abso) %in% 1,
-            c("id_szk", "id_abs", "rok_abs", "typ_szk", "teryt_woj", "branza") %in% names(wsk2),
-            c("id_szk", "id_abs", "rok_abs", "typ_szk", "teryt_woj", "branza") %in% names(wsk3),
-            c("id_szk", "id_abs", "rok_abs", "typ_szk", "teryt_woj", "branza") %in% names(wsk4))
+  tryCatch({
+    stopifnot(is.data.frame(wsk2) | is_tibble(wsk2),
+              is.data.frame(wsk3) | is_tibble(wsk3),
+              is.data.frame(wsk4) | is_tibble(wsk4),
+              is.data.frame(podzial_grupy) | is_tibble(podzial_grupy),
+              rok_abso %in% c(2022, 2023) & length(rok_abso) %in% 1,
+              c("id_szk", "id_abs", "rok_abs", "typ_szk", "teryt_woj", "branza") %in% names(wsk2),
+              c("id_szk", "id_abs", "rok_abs", "typ_szk", "teryt_woj", "branza") %in% names(wsk3),
+              c("id_szk", "id_abs", "rok_abs", "typ_szk", "teryt_woj", "branza") %in% names(wsk4))
 
-  log_file = paste0("agreguj_1rokpo_logfile_", format(Sys.time(), "%Y%m%d_%H%M"), ".txt")
-  sink(log_file)
-  cat("\nStart: ", format(Sys.time(), "%Y.%m.%d %H:%M:%S"), "\n", sep = "")
+    log_file = paste0("agreguj_1rokpo_logfile_", format(Sys.time(), "%Y%m%d_%H%M"), ".txt")
+    sink(log_file)
+    cat("\nStart: ", format(Sys.time(), "%Y.%m.%d %H:%M:%S"), "\n", sep = "")
 
-  wsk4 = wsk4 %>%
-    filter(.data$rok_abs %in% (rok_abso))
-  wsk3 = wsk3 %>%
-    filter(.data$rok_abs %in% (rok_abso))
-  wsk2 = wsk2 %>%
-    filter(.data$rok_abs %in% (rok_abso))
+    wsk4 = wsk4 %>%
+      filter(.data$rok_abs %in% (rok_abso))
+    wsk3 = wsk3 %>%
+      filter(.data$rok_abs %in% (rok_abso))
+    wsk2 = wsk2 %>%
+      filter(.data$rok_abs %in% (rok_abso))
 
-  cat("\nWskaźniki wykorzystujące P4: ", format(Sys.time(), "%Y.%m.%d %H:%M:%S"), "\n", sep = "")
-  wskazniki_4 = agreguj_wskazniki(
-    wsk4, podzial_grupy,
-    dane_szkoly = dane_szkoly(.data),
-    l_abs = l_abs(.data),
-    l_kobiet = l_kobiet(.data),
-    l_abs_zrodla = l_abs_zrodla(.data),
-    liczebnosc_branze_ucz = liczebnosc_branze_ucz(.data))
+    cat("\nWskaźniki wykorzystujące P4: ", format(Sys.time(), "%Y.%m.%d %H:%M:%S"), "\n", sep = "")
+    wskazniki_4 = agreguj_wskazniki(
+      wsk4, podzial_grupy,
+      dane_szkoly = dane_szkoly(.data),
+      l_abs = l_abs(.data),
+      l_kobiet = l_kobiet(.data),
+      l_abs_zrodla = l_abs_zrodla(.data),
+      liczebnosc_branze_ucz = liczebnosc_branze_ucz(.data))
 
-  cat("\nWskaźniki wykorzystujące P3: ", format(Sys.time(), "%Y.%m.%d %H:%M:%S"), "\n", sep = "")
-  wskazniki_3 = agreguj_wskazniki(
-    wskazniki = wsk3, grupy = podzial_grupy,
-    przekazArgumenty = list("rok_abso" = rok_abso, "wsk2" = wsk2),
-    S3_01 = status_S3_mies(.data, min(rok_abso), 1, max(rok_abso), 1),
-    S3_02 = status_S3_mies(.data, min(rok_abso), 2, max(rok_abso), 2),
-    S3_03 = status_S3_mies(.data, min(rok_abso), 3, max(rok_abso), 3),
-    S3_04 = status_S3_mies(.data, min(rok_abso), 4, max(rok_abso), 4),
-    S3_05 = status_S3_mies(.data, min(rok_abso), 5, max(rok_abso), 5),
-    S3_06 = status_S3_mies(.data, min(rok_abso), 6, max(rok_abso), 6),
-    S3_07 = status_S3_mies(.data, min(rok_abso), 7, max(rok_abso), 7),
-    S3_08 = status_S3_mies(.data, min(rok_abso), 8, max(rok_abso), 8),
-    S3_09 = status_S3_mies(.data, min(rok_abso), 9, max(rok_abso), 9),
-    S3_10 = status_S3_mies(.data, min(rok_abso), 10, max(rok_abso), 10),
-    S3_11 = status_S3_mies(.data, min(rok_abso), 11, max(rok_abso), 11),
-    S3_12 = status_S3_mies(.data, min(rok_abso), 12, max(rok_abso), 12),
-    tab_s3_zaw = zawody_status_S3(.data, min(rok_abso), 12, max(rok_abso), 12),
-    E2_nauka_kontyn = E2_nauka_kontyn(.data, rok_abso, 12),
-    Z4_ucz = Z4_ods_prac_mies(.data, min(rok_abso), 9, max(rok_abso), 12, TRUE),
-    Z4_nie_ucz = Z4_ods_prac_mies(.data, min(rok_abso), 9, max(rok_abso), 12, FALSE),
-    Z8_formy_ucz = Z8_formy_prac_mies(.data, rok_abso, 12, TRUE),
-    Z8_formy_nie_ucz = Z8_formy_prac_mies(.data, rok_abso, 12, FALSE),
-    Z9_mlod_ucz = Z9_kont_mlod(.data, rok_abso, 9, TRUE),
-    Z9_mlod_nie_ucz = Z9_kont_mlod(.data, rok_abso, 9, FALSE),
-    W3_ucz = W3_sr_doch_uop(.data, rok_abso, 9, 12, TRUE),
-    W3_nie_ucz = W3_sr_doch_uop(.data, rok_abso, 9, 12, FALSE),
-    B2_bezrob = B2_ods_bezrob(.data, rok_abso, 9, 12),
-    liczebnosc_branze_kont = liczebnosc_branze_kont(.data, wsk2, rok_abso, 12),
-    liczebnosc_dziedziny = liczebnosc_dziedziny(.data, wsk2, rok_abso, 12),
-    liczebnosc_dyscypliny = liczebnosc_dyscypliny(.data, wsk2, rok_abso, 12),
-    dyscypliny_zawody = dyscypliny_zawody(.data, wsk2, rok_abso, 12),
-    branze_zawody = branze_zawody(.data, wsk2, rok_abso, 12),
-    dyscypliny_kob = liczebnosc_dyscypliny_plec(.data, wsk2, rok_abso, 12, "K"),
-    dyscypliny_mez = liczebnosc_dyscypliny_plec(.data, wsk2, rok_abso, 12, "M")
-  )
+    cat("\nWskaźniki wykorzystujące P3: ", format(Sys.time(), "%Y.%m.%d %H:%M:%S"), "\n", sep = "")
+    wskazniki_3 = agreguj_wskazniki(
+      wskazniki = wsk3, grupy = podzial_grupy,
+      przekazArgumenty = list("rok_abso" = rok_abso, "wsk2" = wsk2),
+      S3_01 = status_S3_mies(.data, min(rok_abso), 1, max(rok_abso), 1),
+      S3_02 = status_S3_mies(.data, min(rok_abso), 2, max(rok_abso), 2),
+      S3_03 = status_S3_mies(.data, min(rok_abso), 3, max(rok_abso), 3),
+      S3_04 = status_S3_mies(.data, min(rok_abso), 4, max(rok_abso), 4),
+      S3_05 = status_S3_mies(.data, min(rok_abso), 5, max(rok_abso), 5),
+      S3_06 = status_S3_mies(.data, min(rok_abso), 6, max(rok_abso), 6),
+      S3_07 = status_S3_mies(.data, min(rok_abso), 7, max(rok_abso), 7),
+      S3_08 = status_S3_mies(.data, min(rok_abso), 8, max(rok_abso), 8),
+      S3_09 = status_S3_mies(.data, min(rok_abso), 9, max(rok_abso), 9),
+      S3_10 = status_S3_mies(.data, min(rok_abso), 10, max(rok_abso), 10),
+      S3_11 = status_S3_mies(.data, min(rok_abso), 11, max(rok_abso), 11),
+      S3_12 = status_S3_mies(.data, min(rok_abso), 12, max(rok_abso), 12),
+      tab_s3_zaw = zawody_status_S3(.data, min(rok_abso), 12, max(rok_abso), 12),
+      E2_nauka_kontyn = E2_nauka_kontyn(.data, rok_abso, 12),
+      Z4_ucz = Z4_ods_prac_mies(.data, min(rok_abso), 9, max(rok_abso), 12, TRUE),
+      Z4_nie_ucz = Z4_ods_prac_mies(.data, min(rok_abso), 9, max(rok_abso), 12, FALSE),
+      Z8_formy_ucz = Z8_formy_prac_mies(.data, rok_abso, 12, TRUE),
+      Z8_formy_nie_ucz = Z8_formy_prac_mies(.data, rok_abso, 12, FALSE),
+      Z9_mlod_ucz = Z9_kont_mlod(.data, rok_abso, 9, TRUE),
+      Z9_mlod_nie_ucz = Z9_kont_mlod(.data, rok_abso, 9, FALSE),
+      W3_ucz = W3_sr_doch_uop(.data, rok_abso, 9, 12, TRUE),
+      W3_nie_ucz = W3_sr_doch_uop(.data, rok_abso, 9, 12, FALSE),
+      B2_bezrob = B2_ods_bezrob(.data, rok_abso, 9, 12),
+      liczebnosc_branze_kont = liczebnosc_branze_kont(.data, wsk2, rok_abso, 12),
+      liczebnosc_dziedziny = liczebnosc_dziedziny(.data, wsk2, rok_abso, 12),
+      liczebnosc_dyscypliny = liczebnosc_dyscypliny(.data, wsk2, rok_abso, 12),
+      dyscypliny_zawody = dyscypliny_zawody(.data, wsk2, rok_abso, 12),
+      branze_zawody = branze_zawody(.data, wsk2, rok_abso, 12),
+      dyscypliny_kob = liczebnosc_dyscypliny_plec(.data, wsk2, rok_abso, 12, "K"),
+      dyscypliny_mez = liczebnosc_dyscypliny_plec(.data, wsk2, rok_abso, 12, "M")
+    )
 
-  cat("\nŁączenie wskaźników: ", format(Sys.time(), "%Y.%m.%d %H:%M:%S"), "\n", sep = "")
-  wskazniki_4$grupy = wskazniki_4$grupy %>%
-    left_join(wskazniki_3$grupy, by = names(podzial_grupy))
-  wskazniki_4$grupyOdniesienia = wskazniki_4$grupyOdniesienia %>%
-    left_join(wskazniki_3$grupyOdniesienia, by = names(podzial_grupy))
+    cat("\nŁączenie wskaźników: ", format(Sys.time(), "%Y.%m.%d %H:%M:%S"), "\n", sep = "")
+    wskazniki_4$grupy = wskazniki_4$grupy %>%
+      left_join(wskazniki_3$grupy, by = names(podzial_grupy))
+    wskazniki_4$grupyOdniesienia = wskazniki_4$grupyOdniesienia %>%
+      left_join(wskazniki_3$grupyOdniesienia, by = names(podzial_grupy))
 
-  wskazniki = list(grupy = wskazniki_4$grupy, grupyOdniesienia = wskazniki_4$grupyOdniesienia)
-  cat("\nKoniec: ", format(Sys.time(), "%Y.%m.%d %H:%M:%S"), "\n", sep = "")
-  sink()
-  return(wskazniki)
+    wskazniki = list(grupy = wskazniki_4$grupy, grupyOdniesienia = wskazniki_4$grupyOdniesienia)
+    cat("\nKoniec: ", format(Sys.time(), "%Y.%m.%d %H:%M:%S"), "\n", sep = "")
+    sink()
+    return(wskazniki)
+  },
+  error = function(e) {message("Skrypt zwrócił błąd: ", e$message)},
+  finally = {sink()})
 }
 #' @title Obliczanie wskaźników na poziomie zagregowanym dla 4. edycji
 #' monitoringu na danych administracyjnych
