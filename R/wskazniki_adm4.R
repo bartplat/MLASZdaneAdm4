@@ -7,8 +7,7 @@
 #' @importFrom tibble is_tibble
 #' @export
 dane_szkoly = function(x) {
-  stopifnot(is.data.frame(x) | is_tibble(x),
-            length(unique(x$nazwa_szk)) == length(unique(x$adres_szk)))
+  stopifnot(is.data.frame(x) | is_tibble(x))
 
   if (length(unique(x$nazwa_szk)) > 1 | length(unique(x$adres_szk)) > 1) {
     nazwa = ""
@@ -723,12 +722,12 @@ liczebnosc_branze_kont = function(x, branza_kont_df, rok, mies = 12) {
       mutate(odsetek = .data$n / n_dist) %>%
       slice_max(n = 10, order_by = .data$n, with_ties = FALSE)
     if (nrow(tab) %in% 0) {
-      return(list(n = 0))
+      return(list(branza_kont = NA_character_, n = 0, odsetek = NA_integer_))
     } else {
       return(as.list(tab))
     }
   } else {
-    return(list(n = 0))
+    return(list(branza_kont = NA_character_, n = 0, odsetek = NA_integer_))
   }
 }
 #' @title Obliczanie wskaźników dla 4. edycji monitoringu - dane administracyjne
@@ -767,7 +766,7 @@ liczebnosc_dziedziny = function(x, dziedzina_kont_df, rok, mies = 12) {
       filter(!(is.na(.data$dziedzina_kont)))
 
     if (nrow(x) %in% 0) {
-      return(list(n = 0))
+      return(list(dziedzina_kont = NA_character_, n = 0, odsetek = NA_integer_))
     } else {
       n_dist = n_distinct(x$id_abs)
 
@@ -775,7 +774,7 @@ liczebnosc_dziedziny = function(x, dziedzina_kont_df, rok, mies = 12) {
         count(.data$dziedzina_kont) %>%
         mutate(odsetek = .data$n / n_dist)
       if (nrow(tab) %in% 0) {
-        return(list(n = 0))
+        return(list(dziedzina_kont = NA_character_, n = 0, odsetek = NA_integer_))
       } else {
         tab %>%
           as.list() %>%
@@ -783,7 +782,7 @@ liczebnosc_dziedziny = function(x, dziedzina_kont_df, rok, mies = 12) {
       }
     }
   } else {
-    return(list(n = 0))
+    return(list(dziedzina_kont = NA_character_, n = 0, odsetek = NA_integer_))
   }
 }
 #' @title Obliczanie wskaźników dla 4. edycji monitoringu - dane administracyjne
@@ -822,7 +821,7 @@ liczebnosc_dyscypliny = function(x, dyscyplina_kont_df, rok, mies = 12) {
       filter(!(is.na(.data$dyscyplina_wiodaca_kont)))
 
     if (nrow(x) %in% 0) {
-      return(list(n = 0))
+      return(list(dyscyplina_wiodaca_kont = NA_character_, n = 0, odsetek = NA_integer_))
     } else {
       n_dist = n_distinct(x$id_abs)
 
@@ -830,7 +829,7 @@ liczebnosc_dyscypliny = function(x, dyscyplina_kont_df, rok, mies = 12) {
         count(.data$dyscyplina_wiodaca_kont) %>%
         mutate(odsetek = .data$n / n_dist)
       if (nrow(tab) %in% 0) {
-        return(list(n = 0))
+        return(list(dyscyplina_wiodaca_kont = NA_character_, n = 0, odsetek = NA_integer_))
       } else {
         tab %>%
           as.list() %>%
@@ -838,7 +837,7 @@ liczebnosc_dyscypliny = function(x, dyscyplina_kont_df, rok, mies = 12) {
       }
     }
   } else {
-    return(list(n = 0))
+    return(list(dyscyplina_wiodaca_kont = NA_character_, n = 0, odsetek = NA_integer_))
   }
 }
 #' @title Obliczanie wskaźników dla 4. edycji monitoringu - dane administracyjne
@@ -880,7 +879,7 @@ liczebnosc_dyscypliny_plec = function(x, dyscyplina_kont_df, rok, mies = 12, plc
       filter(!(is.na(.data$dyscyplina_wiodaca_kont)))
 
     if (nrow(x) %in% 0) {
-      return(list(n = 0))
+      return(list(dyscyplina_wiodaca_kont = NA_character_, n = 0, odsetek = NA_integer_))
     } else {
       n_dist = n_distinct(x$id_abs)
 
@@ -888,7 +887,7 @@ liczebnosc_dyscypliny_plec = function(x, dyscyplina_kont_df, rok, mies = 12, plc
         count(.data$dyscyplina_wiodaca_kont) %>%
         mutate(odsetek = .data$n / n_dist)
       if (nrow(tab) %in% 0) {
-        return(list(n = 0))
+        return(list(dyscyplina_wiodaca_kont = NA_character_, n = 0, odsetek = NA_integer_))
       } else {
         tab %>%
           as.list() %>%
@@ -896,7 +895,7 @@ liczebnosc_dyscypliny_plec = function(x, dyscyplina_kont_df, rok, mies = 12, plc
       }
     }
   } else {
-    return(list(n = 0))
+    return(list(dyscyplina_wiodaca_kont = NA_character_, n = 0, odsetek = NA_integer_))
   }
 }
 #' @title Obliczanie wskaźników dla 4. edycji monitoringu - dane administracyjne
@@ -939,7 +938,7 @@ dyscypliny_zawody = function(x, dyscyplina_kont_df, rok, mies = 12) {
       filter(!(is.na(.data$dyscyplina_wiodaca_kont)))
 
     if (nrow(x) %in% 0) {
-      return(list(n = 0))
+      return(list(dyscyplina_wiodaca_kont = NA_character_))
     } else {
       nki = x %>%
         count(.data$nazwa_zaw) %>%
@@ -952,7 +951,7 @@ dyscypliny_zawody = function(x, dyscyplina_kont_df, rok, mies = 12) {
         count(.data$nazwa_zaw) %>%
         ungroup()
       if (nrow(tab) %in% 0) {
-        return(list(n = 0))
+        return(list(dyscyplina_wiodaca_kont = NA_character_))
       } else {
         tab %>%
           pivot_wider(names_from = nazwa_zaw, values_from = n, values_fill = 0) %>%
@@ -965,7 +964,7 @@ dyscypliny_zawody = function(x, dyscyplina_kont_df, rok, mies = 12) {
       }
     }
   } else {
-    return(list(n = 0))
+    return(list(dyscyplina_wiodaca_kont = NA_character_))
   }
 }
 #' @title Obliczanie wskaźników dla 4. edycji monitoringu - dane administracyjne
