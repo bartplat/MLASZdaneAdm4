@@ -132,7 +132,7 @@ status_S3_mies = function(x, rok_od, mies_od, rok_do, mies_do) {
       tylko_ucz = sum((.data$nauka2 %in% 1 | .data$nauka_szk_abs %in% 1) & (.data$praca %in% 0 | .data$status_nieustalony %in% 1 | .data$bezrobocie %in% 1), na.rm = TRUE) / n,
       tylko_prac = sum((.data$nauka2 %in% 0 & .data$nauka_szk_abs %in% 0) & (.data$praca > 0), na.rm = TRUE) / n,
       bezrob = sum(.data$bezrobocie %in% 1 & .data$nauka2 %in% 0 & .data$nauka_szk_abs %in% 0 & (.data$praca %in% 0 | is.na(.data$praca) | .data$status_nieustalony %in% 1), na.rm = TRUE) / n,
-      neet = sum(.data$bezrobocie %in% 0 & .data$nauka2 %in% 0 & .data$nauka_szk_abs %in% 0 & (.data$praca %in% 0 | is.na(.data$praca) | .data$status_nieustalony %in% 1), na.rm = TRUE) / n
+      neet = sum(.data$bezrobocie %in% 0 & .data$nauka2 %in% 0 & .data$nauka_szk_abs %in% 0 & (.data$praca %in% 0 | is.na(.data$praca)) | .data$status_nieustalony %in% 1, na.rm = TRUE) / n
     ) %>%
     as.list() %>%
     return()
