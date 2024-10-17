@@ -24,3 +24,4 @@ RoxygenNote: 7.2.3
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+Config/testthat/start-first: *dummy_data, *ind_wskazniki_adm4, *agr_wskazniki_adm4

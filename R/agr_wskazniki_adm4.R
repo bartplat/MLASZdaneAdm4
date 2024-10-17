@@ -1,4 +1,4 @@
-#' @title Obliczanie wskaźników dla 4. edycji monitoringu - dane administracyjne
+#' @title Wskaźniki zagregowane dla 4. edycji monitoringu - dane administracyjne
 #' @description Funkcja przechowująca nazwę i adres (z RSPO) szkoły, której
 #' dotyczy raport.
 #' @param x ramka danych pośrednich P4
@@ -24,7 +24,7 @@ dane_szkoly = function(x) {
   ) %>%
     return()
 }
-#' @title Obliczanie wskaźników dla 4. edycji monitoringu - dane administracyjne
+#' @title Wskaźniki zagregowane dla 4. edycji monitoringu - dane administracyjne
 #' @description Funkcja oblicza wskaźnik opisujący liczbę absolwentów na danym
 #' poziomie agregacji.
 #' @param x ramka danych pośrednich P4
@@ -36,24 +36,22 @@ l_abs = function(x) {
   stopifnot(is.data.frame(x) | is_tibble(x))
 
   x = x %>%
-    select(id_abs, rok_abs) %>%
-    distinct()
+    select(id_abs, rok_abs)
 
-  if (n_distinct(x$id_abs) == nrow(x)) {
-    x %>%
-      select(id_abs, rok_abs) %>%
-      n_distinct() %>%
-      return()
-  } else {
-    warning("Liczba unikalnych kombinacji `id_abs` i `rok_abs` jest ")
-    x %>%
-      select(id_abs, rok_abs) %>%
-      n_distinct() %>%
-      return()
+  if (n_distinct(x$id_abs) != nrow(x)) {
+    powt = x %>%
+      count(id_abs, rok_abs) %>%
+      filter(n > 1) %>%
+      nrow()
+    warning(paste("W zbiorze danych występują zdublowane wartości par `id_abs` i `rok_abs` w liczbie: "), powt)
   }
 
+  x %>%
+    select(id_abs, rok_abs) %>%
+    n_distinct() %>%
+    return()
 }
-#' @title Obliczanie wskaźników dla 4. edycji monitoringu - dane administracyjne
+#' @title Wskaźniki zagregowane dla 4. edycji monitoringu - dane administracyjne
 #' @description Funkcja oblicza wskaźnik opisujący liczbę kobiet wśród
 #' absolwentów, którzy zostali objęci monitoringiem na danym poziomie agregacji.
 #' @param x ramka danych pośrednich P4
@@ -62,12 +60,12 @@ l_abs = function(x) {
 #' @export
 l_kobiet = function(x) {
   x %>%
-    select(.data$id_abs, .data$rok_abs, .data$plec) %>%
-    filter(.data$plec %in% "K") %>%
+    select(id_abs, rok_abs, .data$plec) %>%
+    filter(plec %in% "K") %>%
     n_distinct() %>%
     return()
 }
-#' @title Obliczanie wskaźników dla 4. edycji monitoringu - dane administracyjne
+#' @title Wskaźniki zagregowane dla 4. edycji monitoringu - dane administracyjne
 #' @description Funkcja oblicza wskaźnik opisujący liczbę absolwentów na danym
 #' poziomie agregacji, o których pozyskano informacje z poszczególnych
 #' rejestrów.
@@ -78,14 +76,14 @@ l_kobiet = function(x) {
 l_abs_zrodla = function(x) {
   x %>%
     reframe(
-      n_cie = sum(.data$abs_w_sio, na.rm = TRUE),
-      n_opi = sum(.data$abs_w_polon, na.rm = TRUE),
-      n_oke = sum(.data$abs_w_cke, na.rm = TRUE),
-      n_zus = sum(.data$abs_w_zus, na.rm = TRUE)) %>%
+      n_cie = sum(abs_w_sio, na.rm = TRUE),
+      n_opi = sum(abs_w_polon, na.rm = TRUE),
+      n_oke = sum(abs_w_cke, na.rm = TRUE),
+      n_zus = sum(abs_w_zus, na.rm = TRUE)) %>%
     as.list() %>%
     return()
 }
-#' @title Obliczanie wskaźników dla 4. edycji monitoringu - dane administracyjne
+#' @title Wskaźniki zagregowane dla 4. edycji monitoringu - dane administracyjne
 #' @description Funkcja licząca odsetek absolwentów o danym statusie
 #' edukacyjno-zawodowym (wskaźnik S3) w danym miesiącu `mies` dla raportu dla
 #' danego roku.
@@ -104,40 +102,47 @@ l_abs_zrodla = function(x) {
 #' osoby uczące się. W sytuacji gdy w tym samym miesiącu absolwent miał różne
 #' statusy, przypisujemy mu „bardziej aktywny” z tych statusów (np. „naukę” a
 #' nie „bezrobocie”).
+#'
+#' Zmienna `status` powinna mieć wartości w formacie skróconym, czyli powinny
+#' one być stworzone za pomocą argumentu `etykiety = FALSE` funkcji
+#' \link{\code{ind_status_S3}}, ponieważ nazwy statusów w tej formie są potem
+#' używane w szablonie raportu szkolnego.
 #' @param x ramka danych pośrednich P3
 #' @param rok_od rok początku okresu, dla którego ma być policzony wskaźnik
 #' @param mies_od miesiąc początku okresu, dla którego ma być policzony wskaźnik
 #' @param rok_do rok końca okresu, dla którego ma być policzony wskaźnik
 #' @param mies_do miesiąc końca okresu, dla którego ma być policzony wskaźnik
 #' @return list
-#' @importFrom dplyr %>% filter .data reframe n_distinct
+#' @importFrom dplyr %>% filter reframe n_distinct
 #' @importFrom tibble is_tibble
 #' @export
 status_S3_mies = function(x, rok_od, mies_od, rok_do, mies_do) {
+  zmienne = c("nauka2", "nauka_szk_abs", "praca", "status_nieustalony", "bezrobocie")
+
   stopifnot(is.data.frame(x) | is_tibble(x),
             rok_od %in% c(2022, 2023),
             mies_od %in% c(1:12),
             rok_do %in% c(2022, 2023),
             mies_do %in% c(1:12),
-            c("nauka2", "nauka_szk_abs", "praca", "status_nieustalony", "bezrobocie") %in% names(x))
+            zmienne %in% names(x))
 
   l_od = data_na_okres(rok = rok_od, mies = mies_od)
   l_do = data_na_okres(rok = rok_do, mies = mies_do)
 
   x %>%
-    filter(.data$okres %in% seq(l_od, l_do, by = 1)) %>%
+    filter(okres %in% seq(l_od, l_do, by = 1)) %>%
+    mutate(status = ind_status_S3(.)) %>%
     reframe(
-      n = n_distinct(.data$id_abs),
-      ucz_prac = sum((.data$nauka2 %in% 1 | .data$nauka_szk_abs %in% 1) & .data$praca > 0, na.rm = TRUE) / n,
-      tylko_ucz = sum((.data$nauka2 %in% 1 | .data$nauka_szk_abs %in% 1) & (.data$praca %in% 0 | .data$status_nieustalony %in% 1 | .data$bezrobocie %in% 1), na.rm = TRUE) / n,
-      tylko_prac = sum((.data$nauka2 %in% 0 & .data$nauka_szk_abs %in% 0) & (.data$praca > 0), na.rm = TRUE) / n,
-      bezrob = sum(.data$bezrobocie %in% 1 & .data$nauka2 %in% 0 & .data$nauka_szk_abs %in% 0 & (.data$praca %in% 0 | is.na(.data$praca) | .data$status_nieustalony %in% 1), na.rm = TRUE) / n,
-      neet = sum(.data$bezrobocie %in% 0 & .data$nauka2 %in% 0 & .data$nauka_szk_abs %in% 0 & (.data$praca %in% 0 | is.na(.data$praca)) | .data$status_nieustalony %in% 1, na.rm = TRUE) / n
-    ) %>%
+      n = n_distinct(id_abs),
+      tylko_ucz = sum(status == "tylko_ucz") / n,
+      ucz_prac = sum(status == "ucz_prac") / n,
+      tylko_prac = sum(status == "tylko_prac") / n,
+      bezrob = sum(status == "bezrob") / n,
+      neet = sum(status == "neet") / n) %>%
     as.list() %>%
     return()
 }
-#' @title Obliczanie wskaźników dla 4. edycji monitoringu - dane administracyjne
+#' @title Wskaźniki zagregowane dla 4. edycji monitoringu - dane administracyjne
 #' @description Funkcja licząca odsetek absolwentów o danym statusie
 #' edukacyjno-zawodowym wśród grup absolwentów wydzielonych ze względu na zawód,
 #' w którym się kształcili w szkole.
@@ -192,13 +197,17 @@ zawody_status_S3 = function(x, rok_od, mies_od, rok_do, mies_do) {
     return(list(n = 0, ucz_prac = NA, tylko_ucz = NA, tylko_prac = NA, bezrob = NA, neet = NA))
   }
 }
-#' @title Obliczanie wskaźników dla 4. edycji monitoringu - dane administracyjne
+#' @title Wskaźniki zagregowane dla 4. edycji monitoringu - dane administracyjne
 #' @description Funkcja licząca wskaźnik E2 - Sposoby kontynuowania edukacji.
+#' Domyślnym okresem, w którym sprawdzany jest odsetek kontynuujących naukę jest
+#' grudzień roku ukończenia szkoły (`rok_abs`). Funkcja liczy wskaźnik dla
+#' pojedynczego okresu, a nie dla zakresu dat.
 #' @param x ramka danych pośrednich P3
-#' @param rok rok lub zakres lat osiągnięcia statusu absolwenta
-#' @param mies miesiąc, dla którego ma być policzony wskaźnik
+#' @param rok rok osiągnięcia statusu absolwenta
+#' @param mies miesiąc, dla którego ma być policzony wskaźnik - domyślnie
+#' grudzień
 #' @return list
-#' @importFrom dplyr %>% filter .data reframe n_distinct
+#' @importFrom dplyr %>% filter reframe n_distinct
 #' @export
 E2_nauka_kontyn = function(x, rok, mies = 12) {
   stopifnot(is.data.frame(x),
@@ -206,7 +215,7 @@ E2_nauka_kontyn = function(x, rok, mies = 12) {
             mies %in% c(1:12))
 
   x = x %>%
-    filter(.data$okres %in% data_na_okres(mies, rok))
+    filter(okres %in% data_na_okres(mies, rok))
 
   if (nrow(x) %in% 0) {
     return(list(n = 0, bs2 = NA, lodd = NA, spolic = NA, studia = NA, kkz = NA, kuz = NA, brak = NA))
@@ -216,23 +225,23 @@ E2_nauka_kontyn = function(x, rok, mies = 12) {
     x %>%
       reframe(
         n = nka,
-        bs2 = sum(.data$nauka_bs2st %in% 1, na.rm = TRUE) / nka,
-        lodd = sum(.data$nauka_lodd %in% 1, na.rm = TRUE) / nka,
-        spolic = sum(.data$nauka_spolic %in% 1, na.rm = TRUE) / nka,
-        studia = sum(.data$nauka_studia %in% 1, na.rm = TRUE) / nka,
-        kkz = sum(.data$nauka_kkz %in% 1, na.rm = TRUE) / nka,
-        kuz = sum(.data$nauka_kuz %in% 1, na.rm = TRUE) / nka,
-        brak = sum(.data$nauka_bs2st %in% 0 &
-                     .data$nauka_lodd %in% 0 &
-                     .data$nauka_spolic %in% 0 &
-                     .data$nauka_studia %in% 0 &
-                     .data$nauka_kkz %in% 0 &
-                     .data$nauka_kuz %in% 0, na.rm = TRUE) / nka) %>%
+        bs2 = sum(nauka_bs2st %in% 1, na.rm = TRUE) / nka,
+        lodd = sum(nauka_lodd %in% 1, na.rm = TRUE) / nka,
+        spolic = sum(nauka_spolic %in% 1, na.rm = TRUE) / nka,
+        studia = sum(nauka_studia %in% 1, na.rm = TRUE) / nka,
+        kkz = sum(nauka_kkz %in% 1, na.rm = TRUE) / nka,
+        kuz = sum(nauka_kuz %in% 1, na.rm = TRUE) / nka,
+        brak = sum(nauka_bs2st %in% 0 &
+                     nauka_lodd %in% 0 &
+                     nauka_spolic %in% 0 &
+                     nauka_studia %in% 0 &
+                     nauka_kkz %in% 0 &
+                     nauka_kuz %in% 0, na.rm = TRUE) / nka) %>%
       as.list() %>%
       return()
   }
 }
-#' @title Obliczanie wskaźników dla 4. edycji monitoringu - dane administracyjne
+#' @title Wskaźniki zagregowane dla 4. edycji monitoringu - dane administracyjne
 #' @description Funkcja licząca na potrzeby szablonu raportu odsetek pracujących
 #' w danym miesiącu w podziale na pobierających i nie pobierających nauki.
 #' Domyślnie jest to okres między wrześniem a grudniem roku przekazanego w
@@ -245,7 +254,7 @@ E2_nauka_kontyn = function(x, rok, mies = 12) {
 #' @param nauka wartość TRUE/FALSE określająca czy status ma być liczony dla
 #' absolwentów uczących się czy nie uczących się
 #' @return list
-#' @importFrom dplyr %>% .data filter count full_join mutate n_distinct between
+#' @importFrom dplyr %>% filter count full_join mutate n_distinct between
 #' @export
 Z4_ods_prac_mies = function(x, rok_od, mies_od = 9, rok_do, mies_do = 12, nauka) {
   stopifnot(is.data.frame(x),
@@ -319,7 +328,7 @@ Z4_ods_prac_mies = function(x, rok_od, mies_od = 9, rok_do, mies_do = 12, nauka)
     }
   }
 }
-#' @title Obliczanie wskaźników dla 4. edycji monitoringu - dane administracyjne
+#' @title Wskaźniki zagregowane dla 4. edycji monitoringu - dane administracyjne
 #' @description Funkcja licząca odsetek absolwentów wykonujących dane formy
 #' pracy w danym miesiącu (domyślnie jest to grudzień). Wskaźnik może być
 #' liczony albo dla absolwentów pracujących i kontynuujących naukę (\code{nauka
@@ -336,6 +345,9 @@ Z4_ods_prac_mies = function(x, rok_od, mies_od = 9, rok_do, mies_do = 12, nauka)
 #'  UOP oraz zatrudnienie w innej formie, Prowadzący działalność gosp.
 #'  (samozatrudnienie) oraz zatrudnienie w innej formie, Zatrudnienie na
 #'  podstawie UOP oraz działalność gosp. oraz zatrudnienie w innej formie}
+#'  \item{\code{NA}{Brak danych - dla absolwentów, którzy w zmiennej `praca`
+#'  posiadają wartość `0` lub brak danych (czyli pozostałe wartości spoza
+#'  zakresu od 1 do 7)}}
 #' }
 #' @param x ramka danych pośrednich P3
 #' @param rok rok lub zakres lat osiągnięcia statusu absolwenta
@@ -349,18 +361,20 @@ Z8_formy_prac_mies = function(x, rok, mies = 12, nauka) {
   stopifnot(is.data.frame(x),
             rok %in% c(2022, 2023),
             mies %in% c(1:12),
-            is.logical(nauka))
+            is.logical(nauka),
+            c("okres", "nauka2", "nauka_szk_abs") %in% names(x))
 
   x = x %>%
-    filter(.data$okres %in% data_na_okres(mies, rok))
+    filter(.data$okres %in% data_na_okres(mies, rok)) %>%
+    mutate(forma = ind_Z8_formy_prac(.))
 
   if (nrow(x) %in% 0) {
     return(list(n = 0))
   } else {
     if (nauka) {
       nka = x %>%
-        filter((.data$nauka2 %in% 1 | .data$nauka_szk_abs %in% 1) & .data$praca %in% c(1:7)) %>%
-        pull(.data$id_abs) %>%
+        filter((nauka2 %in% 1 | nauka_szk_abs %in% 1) & praca %in% c(1:7)) %>%
+        pull(id_abs) %>%
         n_distinct()
       if (nka %in% 0) {
         return(list(n = 0, ucz_uop = 0, ucz_samoz = 0, ucz_inna = 0, ucz_wiecej = 0))
@@ -368,17 +382,17 @@ Z8_formy_prac_mies = function(x, rok, mies = 12, nauka) {
         x %>%
           reframe(
             n = nka,
-            ucz_uop = sum((.data$nauka2 %in% 1 | .data$nauka_szk_abs %in% 1) & .data$praca %in% 1, na.rm = TRUE) / nka,
-            ucz_samoz = sum((.data$nauka2 %in% 1 | .data$nauka_szk_abs %in% 1) & .data$praca %in% 2, na.rm = TRUE) / nka,
-            ucz_inna = sum((.data$nauka2 %in% 1 | .data$nauka_szk_abs %in% 1) & .data$praca %in% 3, na.rm = TRUE) / nka,
-            ucz_wiecej = sum((.data$nauka2 %in% 1 | .data$nauka_szk_abs %in% 1) & .data$praca %in% c(4:7), na.rm = TRUE) / nka) %>%
+            ucz_uop = sum((nauka2 %in% 1 | nauka_szk_abs %in% 1) & forma %in% "uop", na.rm = TRUE) / nka,
+            ucz_samoz = sum((nauka2 %in% 1 | nauka_szk_abs %in% 1) & forma %in% "samoz", na.rm = TRUE) / nka,
+            ucz_inna = sum((nauka2 %in% 1 | nauka_szk_abs %in% 1) & forma %in% "inna", na.rm = TRUE) / nka,
+            ucz_wiecej = sum((nauka2 %in% 1 | nauka_szk_abs %in% 1) & forma %in% "wiecej", na.rm = TRUE) / nka) %>%
           as.list() %>%
           return()
       }
     } else {
       nka = x %>%
-        filter(.data$nauka2 %in% 0 & .data$praca %in% c(1:7)) %>%
-        pull(.data$id_abs) %>%
+        filter(nauka2 %in% 0 & praca %in% c(1:7)) %>%
+        pull(id_abs) %>%
         n_distinct()
       if (nka %in% 0) {
         return(list(n = 0, nieucz_uop = 0, nieucz_samoz = 0, nieucz_inna = 0, nieucz_wiecej = 0))
@@ -386,17 +400,17 @@ Z8_formy_prac_mies = function(x, rok, mies = 12, nauka) {
         x %>%
           reframe(
             n = nka,
-            nieucz_uop = sum(.data$nauka2 %in% 0 & .data$praca %in% 1, na.rm = TRUE) / nka,
-            nieucz_samoz = sum(.data$nauka2 %in% 0 & .data$praca %in% 2, na.rm = TRUE) / nka,
-            nieucz_inna = sum(.data$nauka2 %in% 0 & .data$praca %in% 3, na.rm = TRUE) / nka,
-            nieucz_wiecej = sum(.data$nauka2 %in% 0 & .data$praca %in% c(4:7), na.rm = TRUE) / nka) %>%
+            nieucz_uop = sum(nauka2 %in% 0 & forma %in% "uop", na.rm = TRUE) / nka,
+            nieucz_samoz = sum(nauka2 %in% 0 & forma %in% "samoz", na.rm = TRUE) / nka,
+            nieucz_inna = sum(nauka2 %in% 0 & forma %in% "inna", na.rm = TRUE) / nka,
+            nieucz_wiecej = sum(nauka2 %in% 0 & forma %in% "wiecej", na.rm = TRUE) / nka) %>%
           as.list() %>%
           return()
       }
     }
   }
 }
-#' @title Obliczanie wskaźników dla 4. edycji monitoringu - dane administracyjne
+#' @title Wskaźniki zagregowane dla 4. edycji monitoringu - dane administracyjne
 #' @description Funkcja licząca odsetek absolwentów, którzy w danym miesiącu
 #' (domyślnie jest to wrzesień) kontynuowali zatrudnienie u pracodawcy, który
 #' wcześniej (tj. kiedy byli jeszcze uczniami) zatrudniał ich jako pracowników
@@ -480,31 +494,44 @@ Z9_kont_mlod = function(x, rok, mies = 9, nauka) {
     return(list(n = 0))
   }
 }
-#' @title Obliczanie wskaźników dla 4. edycji monitoringu - dane administracyjne
+#' @title Wskaźniki zagregowane dla 4. edycji monitoringu - dane administracyjne
 #' @description Funkcja licząca średni względny miesięczny przychód z pracy
-#' \emph{etatowej} w danym okresie w odniesieniu do zarobków w zamieszkiwanym
-#' powiecie. Domyślnie jest to okres między wrześniem a grudniem roku
-#' przekazanego w argumentach funkcji, ale te wartości można zmieniać. Średnia
-#' liczona jest oddzielnie dla uczących i nie uczących się absolwentów.
+#' \strong{etatowej} (na Umowie o Pracę - UOP) w danym okresie w odniesieniu do
+#' zarobków w zamieszkiwanym powiecie. Domyślnie jest to okres między wrześniem
+#' a grudniem roku przekazanego w argumentach funkcji, ale te wartości można
+#' zmieniać. Średnia liczona jest oddzielnie dla uczących i nie uczących się
+#' absolwentów.
+#' @details Relatywna średnia zarobków liczona jest w kilku etapach. W pierwszym
+#' kroku, dla każdego absolwenta liczony jest stosunek wartości wynagrodzenia na
+#' UOP w danym miesiącu do średniego wynagrodzenia w powiecie, w którym
+#' uczęszczał do szkoły według GUS. Następnie, dla każdego absolwenta liczona
+#' jest ze stosunków zarobków absolwenta w poszczególnych miesiącach do średnich
+#' zarobków w powiecie. Ze zbioru osobo-miesięcy przechodzimy na zbiór osób,
+#' gdzie każdy wiersz odpowiada absolwentowi, a iloraz zarobków absolwenta i
+#' zarobków w powiecie jest uśredniony - średni odsetek dla wszystkich miesięcy,
+#' w których dochód był niezerowy. Następnie na tych indywidualnych wartościach
+#' liczone są statystyki opisowe dla zadanego poziomu agregacji.
 #' @param x ramka danych pośrednich P3
-#' @param rok rok lub zakres lat osiągnięcia statusu absolwenta
-#' @param od początek okresu wyliczania wskaźnika wyrażony miesiącem
-#' @param do koniec okresu wyliczania wskaźnika wyrażony miesiącem
+#' @param rok_od rok początku okresu, dla którego ma być policzony wskaźnik
+#' @param mies_od miesiąc początku okresu, dla którego ma być policzony wskaźnik
+#' @param rok_do rok końca okresu, dla którego ma być policzony wskaźnik
+#' @param mies_do miesiąc końca okresu, dla którego ma być policzony wskaźnik
 #' @param nauka wartość TRUE/FALSE określająca czy status ma być liczony dla
 #' absolwentów uczących się czy nie uczących się
 #' @return list
-#' @importFrom dplyr %>% filter group_by reframe ungroup
+#' @importFrom dplyr %>% filter group_by reframe
 #' n_distinct
 #' @export
-W3_sr_doch_uop = function(x, rok, od = 9, do = 12, nauka) {
+W3_sr_doch_uop = function(x, rok_od, mies_od = 9, rok_do, mies_do = 12, nauka) {
   stopifnot(is.data.frame(x),
-            rok %in% c(2022, 2023),
-            od %in% c(1:12),
-            do %in% c(1:12),
+            rok_od %in% c(2022, 2023),
+            mies_od %in% c(1:12),
+            rok_do %in% c(2022, 2023),
+            mies_do %in% c(1:12),
             is.logical(nauka))
 
-  l_od = data_na_okres(rok = min(rok), mies = od)
-  l_do = data_na_okres(rok = max(rok), mies = od)
+  l_od = data_na_okres(rok = rok_od, mies = mies_od)
+  l_do = data_na_okres(rok = rok_do, mies = mies_do)
 
   x = x %>%
     filter(.data$okres %in% seq(l_od, l_do, by = 1))
@@ -516,11 +543,11 @@ W3_sr_doch_uop = function(x, rok, od = 9, do = 12, nauka) {
                .data$wynagrodzenie_uop > 0,
                .data$powiat_sr_wynagrodzenie > 0)
 
-      dol = quantile(x$wynagrodzenie_uop, 0.01)
-      gora = quantile(x$wynagrodzenie_uop, 0.99)
+      # dol = quantile(x$wynagrodzenie_uop, 0.01)
+      # gora = quantile(x$wynagrodzenie_uop, 0.99)
 
       x %>%
-        filter(.data$wynagrodzenie_uop > dol & .data$wynagrodzenie_uop < gora) %>%
+        # filter(.data$wynagrodzenie_uop > dol & .data$wynagrodzenie_uop < gora) %>%
         group_by(.data$id_abs, .data$okres) %>%
         reframe(
           rel_sred_ind_mies = .data$wynagrodzenie_uop / .data$powiat_sr_wynagrodzenie
@@ -546,11 +573,12 @@ W3_sr_doch_uop = function(x, rok, od = 9, do = 12, nauka) {
                .data$powiat_sr_wynagrodzenie > 0) %>%
         group_by(.data$id_abs, .data$okres)
 
-      dol = quantile(x$wynagrodzenie_uop, 0.01)
-      gora = quantile(x$wynagrodzenie_uop, 0.99)
+      # dol = quantile(x$wynagrodzenie_uop, 0.01)
+      # gora = quantile(x$wynagrodzenie_uop, 0.99)
 
       x %>%
-        filter(.data$wynagrodzenie_uop > dol & .data$wynagrodzenie_uop < gora) %>%
+        # filter(.data$wynagrodzenie_uop > dol & .data$wynagrodzenie_uop < gora) %>%
+        group_by(.data$id_abs, .data$okres) %>%
         reframe(
           rel_sred_ind_mies = .data$wynagrodzenie_uop / .data$powiat_sr_wynagrodzenie
         ) %>%
@@ -573,7 +601,7 @@ W3_sr_doch_uop = function(x, rok, od = 9, do = 12, nauka) {
     return(list(n = 0))
   }
 }
-#' @title Obliczanie wskaźników dla 4. edycji monitoringu - dane administracyjne
+#' @title Wskaźniki zagregowane dla 4. edycji monitoringu - dane administracyjne
 #' @description Funkcja licząca na potrzeby szablonu raportu rozkład liczby
 #' miesięcy bezrobocia rejestrowanego wśród absolwentów w danym okresie.
 #' Domyślnie jest to okres między wrześniem a grudniem roku przekazanego w
@@ -639,7 +667,7 @@ B2_ods_bezrob = function(x, rok, od = 9, do = 12) {
   c(ods, descr) %>%
     return()
 }
-#' @title Obliczanie wskaźników dla 4. edycji monitoringu - dane administracyjne
+#' @title Wskaźniki zagregowane dla 4. edycji monitoringu - dane administracyjne
 #' @description Funkcja licząca rozkład liczebności wyuczonych zawodów wśród
 #' absolwentów w podziale na branże. Dodatkowo, funkcja liczy liczebności
 #' absolwentów w branżach, a informacja ta służy jako podstawa do definiowania
@@ -679,7 +707,7 @@ liczebnosc_branze_ucz = function(x) {
     return(list(n = 0))
   }
 }
-#' @title Obliczanie wskaźników dla 4. edycji monitoringu - dane administracyjne
+#' @title Wskaźniki zagregowane dla 4. edycji monitoringu - dane administracyjne
 #' @description Funkcja licząca rozkład liczebności absolwentów kontynuujących
 #' naukę w szkołach branżowych 2. stopnia w podziale na branże. Dodatkowo,
 #' funkcja liczy liczebności absolwentów w branżach, a informacja ta służy jako
@@ -730,7 +758,7 @@ liczebnosc_branze_kont = function(x, branza_kont_df, rok, mies = 12) {
     return(list(branza_kont = NA_character_, n = 0, odsetek = NA_integer_))
   }
 }
-#' @title Obliczanie wskaźników dla 4. edycji monitoringu - dane administracyjne
+#' @title Wskaźniki zagregowane dla 4. edycji monitoringu - dane administracyjne
 #' @description Funkcja licząca rozkład liczebności absolwentów kontynuujących
 #' naukę na studiach w podziale na dziedziny. Funkcja liczy wskaźnik tylko dla
 #' absolwentów techników,liceów ogólnokształcących i branżowych szkół 2.
@@ -785,7 +813,7 @@ liczebnosc_dziedziny = function(x, dziedzina_kont_df, rok, mies = 12) {
     return(list(dziedzina_kont = NA_character_, n = 0, odsetek = NA_integer_))
   }
 }
-#' @title Obliczanie wskaźników dla 4. edycji monitoringu - dane administracyjne
+#' @title Wskaźniki zagregowane dla 4. edycji monitoringu - dane administracyjne
 #' @description Funkcja licząca rozkład liczebności absolwentów kontynuujących
 #' naukę na studiach w podziale na dyscypliny. Funkcja liczy wskaźnik tylko dla
 #' absolwentów techników,liceów ogólnokształcących i branżowych szkół 2.
@@ -840,7 +868,7 @@ liczebnosc_dyscypliny = function(x, dyscyplina_kont_df, rok, mies = 12) {
     return(list(dyscyplina_wiodaca_kont = NA_character_, n = 0, odsetek = NA_integer_))
   }
 }
-#' @title Obliczanie wskaźników dla 4. edycji monitoringu - dane administracyjne
+#' @title Wskaźniki zagregowane dla 4. edycji monitoringu - dane administracyjne
 #' @description Funkcja licząca rozkład liczebności absolwentów danej płci
 #' kontynuujących naukę na studiach w podziale na dyscypliny. Wskaźnik liczony
 #' jest tylko dla absolwentów techników i liceów ogólnokształcących.
@@ -898,7 +926,7 @@ liczebnosc_dyscypliny_plec = function(x, dyscyplina_kont_df, rok, mies = 12, plc
     return(list(dyscyplina_wiodaca_kont = NA_character_, n = 0, odsetek = NA_integer_))
   }
 }
-#' @title Obliczanie wskaźników dla 4. edycji monitoringu - dane administracyjne
+#' @title Wskaźniki zagregowane dla 4. edycji monitoringu - dane administracyjne
 #' @description Funkcja licząca rozkład liczebności absolwentów kontynuujących
 #' naukę na studiach w podziale na dyscypliny i zawody - wynik działania funkcji
 #' jest wsadem do tabeli krzyżowej dyscypliny przez zawody w raporcie. Funkcja
@@ -967,7 +995,7 @@ dyscypliny_zawody = function(x, dyscyplina_kont_df, rok, mies = 12) {
     return(list(dyscyplina_wiodaca_kont = NA_character_))
   }
 }
-#' @title Obliczanie wskaźników dla 4. edycji monitoringu - dane administracyjne
+#' @title Wskaźniki zagregowane dla 4. edycji monitoringu - dane administracyjne
 #' @description Funkcja licząca rozkład liczebności absolwentów kontynuujących
 #' naukę na studiach w podziale na dyscypliny i zawody - wynik działania funkcji
 #' jest wsadem do tabeli krzyżowej dyscypliny przez zawody w raporcie. Funkcja
@@ -1033,7 +1061,7 @@ branze_zawody = function(x, branza_kont_df, rok, mies = 12) {
     return(list(n = 0))
   }
 }
-#' @title Obliczanie wskaźników dla 4. edycji monitoringu - dane administracyjne
+#' @title Wskaźniki zagregowane dla 4. edycji monitoringu - dane administracyjne
 #' @description Funkcja licząca rozkład liczebności w zawodach na potrzeby
 #' raportu wojewódzko-branżowego.
 #' @param x ramka danych pośrednich P4

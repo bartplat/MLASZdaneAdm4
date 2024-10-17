@@ -102,8 +102,8 @@ dummyP4 = function(agregat, rspo, seed = NULL) {
   agregat = agregat %>%
     uncount(n) %>%
     mutate(id_abs = row_number(),
-           rok_ur = sample(c(2001:2003), size = n(), prob = c(23.0, 47.2, 29.8), replace = TRUE),
-           rok_abs = 2021) %>%
+           rok_ur = sample(c(2003:2005), size = n(), prob = c(23.0, 47.2, 29.8), replace = TRUE),
+           rok_abs = 2023) %>%
     mutate(
       nazwa_zaw = case_when(
 
@@ -185,7 +185,7 @@ dummyP3 = function(indyw, seed = NULL) {
     mutate(n = 17) %>%
     uncount(n) %>%
     group_by(id_abs) %>%
-    mutate(okres = 24253:24269) %>%
+    mutate(okres = 24277:24293) %>%
     ungroup() %>%
     rowwise() %>%
     mutate(

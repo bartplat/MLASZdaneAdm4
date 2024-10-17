@@ -28,7 +28,7 @@ list
 }
 \description{
 Funkcja obliczająca wskaźniki na poziomie zagregowanym na
-potrzeby raportów "1rokpo" (po roku od ukończenia szkoły).
+potrzeby raportów \verb{1rokpo} (po roku od ukończenia szkoły).
 }
 \seealso{
 \code{\link{agreguj_wskazniki}} oraz przekazywane do niej funkcje
