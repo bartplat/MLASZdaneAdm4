@@ -53,7 +53,8 @@ agreguj_1rokpo_adm4 = function(wsk2, wsk3, wsk4, podzial_grupy, rok_abso) {
 
     log_file = paste0("agreguj_1rokpo_logfile_", format(Sys.time(), "%Y%m%d_%H%M"), ".txt")
     sink(log_file)
-    cat("\nStart: ", format(Sys.time(), "%Y.%m.%d %H:%M:%S"), "\n", sep = "")
+    czas_start = Sys.time()
+    cat("\nStart: ", format(czas_start, "%Y.%m.%d %H:%M:%S"), "\n", sep = "")
 
     wsk4 = wsk4 %>%
       filter(.data$rok_abs %in% (rok_abso))
@@ -108,8 +109,9 @@ agreguj_1rokpo_adm4 = function(wsk2, wsk3, wsk4, podzial_grupy, rok_abso) {
       left_join(wskazniki_3$grupyOdniesienia, by = names(podzial_grupy))
 
     wskazniki = list(grupy = wskazniki_4$grupy, grupyOdniesienia = wskazniki_4$grupyOdniesienia)
-    cat("\nKoniec: ", format(Sys.time(), "%Y.%m.%d %H:%M:%S"), "\n", sep = "")
-    sink()
+    czas_stop = Sys.time()
+    czas_roznica = round(czas_stop - czas_start, 2)
+    cat("\nKoniec: ", format(czas_stop, "%Y.%m.%d %H:%M:%S"), "\nComputation duration: ", paste(as.numeric(czas_roznica), attr(czas_roznica, "units")), "\n", sep = "")
     return(wskazniki)
   },
   error = function(e) {
@@ -161,7 +163,8 @@ agreguj_aneks_1rokpo_adm4 = function(wsk3, wsk4, podzial_grupy, rok_abso) {
 
     log_file = paste0("agreguj_aneks_1rokpo_logfile_", format(Sys.time(), "%Y%m%d_%H%M"), ".txt")
     sink(log_file)
-    cat("\nStart: ", format(Sys.time(), "%Y.%m.%d %H:%M:%S"), "\n", sep = "")
+    czas_start = Sys.time()
+    cat("\nStart: ", format(czas_start, "%Y.%m.%d %H:%M:%S"), "\n", sep = "")
 
     wsk4 = wsk4 %>%
       filter(.data$rok_abs %in% (rok_abso))
@@ -195,8 +198,9 @@ agreguj_aneks_1rokpo_adm4 = function(wsk3, wsk4, podzial_grupy, rok_abso) {
       left_join(wskazniki_3$grupyOdniesienia, by = names(podzial_grupy))
 
     wskazniki = list(grupy = wskazniki_4$grupy, grupyOdniesienia = wskazniki_4$grupyOdniesienia)
-    cat("\nKoniec: ", format(Sys.time(), "%Y.%m.%d %H:%M:%S"), "\n", sep = "")
-    sink()
+    czas_stop = Sys.time()
+    czas_roznica = round(czas_stop - czas_start, 2)
+    cat("\nKoniec: ", format(czas_stop, "%Y.%m.%d %H:%M:%S"), "\nComputation duration: ", paste(as.numeric(czas_roznica), attr(czas_roznica, "units")), "\n", sep = "")
     return(wskazniki)
   },
   error = function(e) {
@@ -243,7 +247,8 @@ agreguj_szkozaw_1rokpo_adm4 = function(wsk3, wsk4, podzial_grupy, rok_abso) {
 
     log_file = paste0("agreguj_szkozaw_1rokpo_logfile_", format(Sys.time(), "%Y%m%d_%H%M"), ".txt")
     sink(log_file)
-    cat("\nStart: ", format(Sys.time(), "%Y.%m.%d %H:%M:%S"), "\n", sep = "")
+    czas_start = Sys.time()
+    cat("\nStart: ", format(czas_start, "%Y.%m.%d %H:%M:%S"), "\n", sep = "")
 
     wsk4 = wsk4 %>%
       filter(.data$rok_abs %in% (rok_abso))
@@ -271,8 +276,9 @@ agreguj_szkozaw_1rokpo_adm4 = function(wsk3, wsk4, podzial_grupy, rok_abso) {
       left_join(wskazniki_3$grupyOdniesienia, by = names(podzial_grupy))
 
     wskazniki = list(grupy = wskazniki_4$grupy, grupyOdniesienia = wskazniki_4$grupyOdniesienia)
-    cat("\nKoniec: ", format(Sys.time(), "%Y.%m.%d %H:%M:%S"), "\n", sep = "")
-    sink()
+    czas_stop = Sys.time()
+    czas_roznica = round(czas_stop - czas_start, 2)
+    cat("\nKoniec: ", format(czas_stop, "%Y.%m.%d %H:%M:%S"), "\nComputation duration: ", paste(as.numeric(czas_roznica), attr(czas_roznica, "units")), "\n", sep = "")
     return(wskazniki)
   },
   error = function(e) {
@@ -334,7 +340,8 @@ agreguj_woj_branz_adm4 = function(wsk3, wsk4, podzial_grupy, rok_abso) {
 
     log_file = paste0("agreguj_wojbranz_1rokpo_logfile_", format(Sys.time(), "%Y%m%d_%H%M"), ".txt")
     sink(log_file)
-    cat("\nStart: ", format(Sys.time(), "%Y.%m.%d %H:%M:%S"), "\n", sep = "")
+    czas_start = Sys.time()
+    cat("\nStart: ", format(czas_start, "%Y.%m.%d %H:%M:%S"), "\n", sep = "")
 
     wsk4 = wsk4 %>%
       filter(.data$rok_abs %in% (rok_abso))
@@ -375,8 +382,9 @@ agreguj_woj_branz_adm4 = function(wsk3, wsk4, podzial_grupy, rok_abso) {
       left_join(wskazniki_3$grupyOdniesienia, by = names(podzial_grupy))
 
     wskazniki = list(grupy = wskazniki_4$grupy, grupyOdniesienia = wskazniki_4$grupyOdniesienia)
-    cat("\nKoniec: ", format(Sys.time(), "%Y.%m.%d %H:%M:%S"), "\n", sep = "")
-    sink()
+    czas_stop = Sys.time()
+    czas_roznica = round(czas_stop - czas_start, 2)
+    cat("\nKoniec: ", format(czas_stop, "%Y.%m.%d %H:%M:%S"), "\nComputation duration: ", paste(as.numeric(czas_roznica), attr(czas_roznica, "units")), "\n", sep = "")
     return(wskazniki)
   },
   error = function(e) {
