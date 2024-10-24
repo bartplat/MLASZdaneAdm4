@@ -75,12 +75,6 @@ agreguj_1rokpo_adm4 = function(wsk2, wsk3, wsk4, podzial_grupy, rok_abso) {
     wskazniki_3 = agreguj_wskazniki(
       wskazniki = wsk3, grupy = podzial_grupy,
       przekazArgumenty = list("rok_abso" = rok_abso, "wsk2" = wsk2),
-      S3_01 = status_S3_mies(.data, min(rok_abso), 1, max(rok_abso), 1),
-      S3_02 = status_S3_mies(.data, min(rok_abso), 2, max(rok_abso), 2),
-      S3_03 = status_S3_mies(.data, min(rok_abso), 3, max(rok_abso), 3),
-      S3_04 = status_S3_mies(.data, min(rok_abso), 4, max(rok_abso), 4),
-      S3_05 = status_S3_mies(.data, min(rok_abso), 5, max(rok_abso), 5),
-      S3_06 = status_S3_mies(.data, min(rok_abso), 6, max(rok_abso), 6),
       S3_07 = status_S3_mies(.data, min(rok_abso), 7, max(rok_abso), 7),
       S3_08 = status_S3_mies(.data, min(rok_abso), 8, max(rok_abso), 8),
       S3_09 = status_S3_mies(.data, min(rok_abso), 9, max(rok_abso), 9),
@@ -118,8 +112,13 @@ agreguj_1rokpo_adm4 = function(wsk2, wsk3, wsk4, podzial_grupy, rok_abso) {
     sink()
     return(wskazniki)
   },
-  error = function(e) {cat("Skrypt zwrócił błąd: ", e$message, "\n")},
-  finally = {sink()})
+  error = function(e) {
+    cat("Skrypt zwrócił błąd: ", conditionMessage(e), "\n")
+    cat("Traceback:\n")
+    traceback()},
+  finally = {
+    sink()
+    message("Zamknięto plik log.")})
 }
 #' @title Obliczanie wskaźników na poziomie zagregowanym dla 4. edycji
 #' monitoringu na danych administracyjnych
@@ -200,8 +199,13 @@ agreguj_aneks_1rokpo_adm4 = function(wsk3, wsk4, podzial_grupy, rok_abso) {
     sink()
     return(wskazniki)
   },
-  error = function(e) {cat("Skrypt zwrócił błąd: ", e$message, "\n")},
-  finally = {sink()})
+  error = function(e) {
+    cat("Skrypt zwrócił błąd: ", conditionMessage(e), "\n")
+    cat("Traceback:\n")
+    traceback()},
+  finally = {
+    sink()
+    message("Zamknięto plik log.")})
 }
 #' @title Obliczanie wskaźników na poziomie zagregowanym dla 4. edycji
 #' monitoringu na danych administracyjnych
@@ -271,8 +275,13 @@ agreguj_szkozaw_1rokpo_adm4 = function(wsk3, wsk4, podzial_grupy, rok_abso) {
     sink()
     return(wskazniki)
   },
-  error = function(e) {cat("Skrypt zwrócił błąd: ", e$message, "\n")},
-  finally = {sink()})
+  error = function(e) {
+    cat("Skrypt zwrócił błąd: ", conditionMessage(e), "\n")
+    cat("Traceback:\n")
+    traceback()},
+  finally = {
+    sink()
+    message("Zamknięto plik log.")})
 }
 #' @title Obliczanie wskaźników na poziomie zagregowanym dla 4. edycji
 #' monitoringu na danych administracyjnych
@@ -345,12 +354,6 @@ agreguj_woj_branz_adm4 = function(wsk3, wsk4, podzial_grupy, rok_abso) {
     cat("\nWskaźniki wykorzystujące P3: ", format(Sys.time(), "%Y.%m.%d %H:%M:%S"), "\n", sep = "")
     wskazniki_3 = agreguj_wskazniki(
       wsk3, podzial_grupy, list("rok_abso" = rok_abso),
-      S3_01 = status_S3_mies(.data, min(rok_abso), 1, max(rok_abso), 1),
-      S3_02 = status_S3_mies(.data, min(rok_abso), 2, max(rok_abso), 2),
-      S3_03 = status_S3_mies(.data, min(rok_abso), 3, max(rok_abso), 3),
-      S3_04 = status_S3_mies(.data, min(rok_abso), 4, max(rok_abso), 4),
-      S3_05 = status_S3_mies(.data, min(rok_abso), 5, max(rok_abso), 5),
-      S3_06 = status_S3_mies(.data, min(rok_abso), 6, max(rok_abso), 6),
       S3_07 = status_S3_mies(.data, min(rok_abso), 7, max(rok_abso), 7),
       S3_08 = status_S3_mies(.data, min(rok_abso), 8, max(rok_abso), 8),
       S3_09 = status_S3_mies(.data, min(rok_abso), 9, max(rok_abso), 9),
@@ -376,6 +379,11 @@ agreguj_woj_branz_adm4 = function(wsk3, wsk4, podzial_grupy, rok_abso) {
     sink()
     return(wskazniki)
   },
-  error = function(e) {cat("Skrypt zwrócił błąd: ", e$message, "\n")},
-  finally = {sink()})
+  error = function(e) {
+    cat("Skrypt zwrócił błąd: ", conditionMessage(e), "\n")
+    cat("Traceback:\n")
+    traceback()},
+  finally = {
+    sink()
+    message("Zamknięto plik log.")})
 }

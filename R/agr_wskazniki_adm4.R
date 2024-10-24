@@ -7,20 +7,21 @@
 #' @importFrom tibble is_tibble
 #' @export
 dane_szkoly = function(x) {
-  stopifnot(is.data.frame(x) | is_tibble(x))
+  stopifnot(is.data.frame(x) | is_tibble(x),
+            c("nazwa_szk", "adres_szk") %in% names(x))
 
   if (length(unique(x$nazwa_szk)) > 1 | length(unique(x$adres_szk)) > 1) {
-    nazwa = ""
-    adres = ""
+    naz = ""
+    adr = ""
     warning("Zmienne `nazwa_szk` i `adres_szk` zawierają więcej niż 1 unikalną wartość, więc zwrócone zostaną puste wartości tekstowe")
   } else {
-    nazwa = unique(x$nazwa_szk)
-    adres = unique(x$adres_szk)
+    naz = unique(x$nazwa_szk)
+    adr = unique(x$adres_szk)
   }
 
   list(
-    nazwa = nazwa,
-    adres = adres
+    nazwa = naz,
+    adres = adr
   ) %>%
     return()
 }
@@ -113,7 +114,7 @@ l_abs_zrodla = function(x) {
 #' @param rok_do rok końca okresu, dla którego ma być policzony wskaźnik
 #' @param mies_do miesiąc końca okresu, dla którego ma być policzony wskaźnik
 #' @return list
-#' @importFrom dplyr %>% filter reframe n_distinct
+#' @importFrom dplyr %>% .data filter pick everything reframe n_distinct
 #' @importFrom tibble is_tibble
 #' @export
 status_S3_mies = function(x, rok_od, mies_od, rok_do, mies_do) {
@@ -131,7 +132,7 @@ status_S3_mies = function(x, rok_od, mies_od, rok_do, mies_do) {
 
   x %>%
     filter(okres %in% seq(l_od, l_do, by = 1)) %>%
-    mutate(status = ind_status_S3(.)) %>%
+    mutate(status = ind_status_S3(pick(everything()))) %>%
     reframe(
       n = n_distinct(id_abs),
       tylko_ucz = sum(status == "tylko_ucz") / n,
