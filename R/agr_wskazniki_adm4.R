@@ -782,7 +782,11 @@ liczebnosc_dziedziny = function(x, dziedzina_kont_df, rok, mies = 12) {
             rok %in% c(2022, 2023),
             mies %in% c(1:12))
 
-  if (any(unique(x$typ_szk) %in% c("Technikum", "Liceum ogólnokształcące", "Branżowa szkoła II stopnia"))) {
+  if (any(unique(x$typ_szk) %in% c("Technikum",
+                                   "Liceum ogólnokształcące",
+                                   "Branżowa szkoła II stopnia",
+                                   "Liceum ogólnokształcące",
+                                   "Szkoła policealna"))) {
 
     dziedzina_kont_df = dziedzina_kont_df %>%
       select(id_abs, rok_abs, dziedzina_kont)
@@ -837,7 +841,11 @@ liczebnosc_dyscypliny = function(x, dyscyplina_kont_df, rok, mies = 12) {
             rok %in% c(2022, 2023),
             mies %in% c(1:12))
 
-  if (any(unique(x$typ_szk) %in% c("Technikum", "Liceum ogólnokształcące", "Branżowa szkoła II stopnia"))) {
+  if (any(unique(x$typ_szk) %in% c("Technikum",
+                                   "Liceum ogólnokształcące",
+                                   "Branżowa szkoła II stopnia",
+                                   "Liceum ogólnokształcące",
+                                   "Szkoła policealna"))) {
 
     dyscyplina_kont_df = dyscyplina_kont_df %>%
       select(id_abs, rok_abs, dyscyplina_wiodaca_kont)
@@ -894,7 +902,11 @@ liczebnosc_dyscypliny_plec = function(x, dyscyplina_kont_df, rok, mies = 12, plc
             rok %in% c(2022, 2023),
             mies %in% c(1:12))
 
-  if (any(unique(x$typ_szk) %in% c("Technikum", "Liceum ogólnokształcące", "Branżowa szkoła II stopnia"))) {
+  if (any(unique(x$typ_szk) %in% c("Technikum",
+                                   "Liceum ogólnokształcące",
+                                   "Branżowa szkoła II stopnia",
+                                   "Liceum ogólnokształcące",
+                                   "Szkoła policealna"))) {
 
     dyscyplina_kont_df = dyscyplina_kont_df %>%
       select(id_abs, rok_abs, dyscyplina_wiodaca_kont, plec)
@@ -954,7 +966,11 @@ dyscypliny_zawody = function(x, dyscyplina_kont_df, rok, mies = 12) {
             rok %in% c(2022, 2023),
             mies %in% c(1:12))
 
-  if (any(unique(x$typ_szk) %in% c("Technikum", "Szkoła policealna", "Branżowa szkoła II stopnia"))) {
+  if (any(unique(x$typ_szk) %in% c("Technikum",
+                                   "Liceum ogólnokształcące",
+                                   "Branżowa szkoła II stopnia",
+                                   "Liceum ogólnokształcące",
+                                   "Szkoła policealna"))) {
 
     dyscyplina_kont_df = dyscyplina_kont_df %>%
       select(id_abs, dyscyplina_wiodaca_kont)
