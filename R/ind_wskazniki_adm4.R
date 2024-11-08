@@ -31,12 +31,11 @@ ind_status_S3 = function(x, etykiety = FALSE) {
             c("nauka2", "nauka_szk_abs", "praca", "status_nieustalony", "bezrobocie") %in% names(x))
 
   status = case_when(
-    (x$nauka2 == 1 | x$nauka_szk_abs == 1) & x$praca == 0 ~ "tylko_ucz",
+    (x$nauka2 == 1 | x$nauka_szk_abs == 1) & (x$praca == 0 | x$status_nieustalony == 1) ~ "tylko_ucz",
     (x$nauka2 == 1 | x$nauka_szk_abs == 1) & x$praca > 0 ~ "ucz_prac",
     (x$nauka2 == 0 & x$nauka_szk_abs == 0) & x$praca > 0 ~ "tylko_prac",
-    x$bezrobocie == 1 & x$nauka2 == 0 & x$nauka_szk_abs == 0 & x$praca == 0 & (is.na(x$praca) | x$status_nieustalony == 1) ~ "bezrob",
-    # x$bezrobocie == 0 & x$nauka2 == 0 & x$nauka_szk_abs == 0 & x$praca == 0 & (is.na(x$praca) | x$status_nieustalony == 1) ~ "neet",
-    TRUE ~ "neet")
+    x$bezrobocie == 1 & x$nauka2 == 0 & x$nauka_szk_abs == 0 & (x$praca == 0 | x$status_nieustalony == 1) ~ "bezrob",
+    (x$bezrobocie == 0 | x$status_nieustalony == 1 | x$praca == 0) & x$nauka2 == 0 & x$nauka_szk_abs == 0 ~ "neet")
 
   if (etykiety) {
     status = case_when(
