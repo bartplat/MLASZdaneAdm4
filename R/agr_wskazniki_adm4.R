@@ -62,7 +62,7 @@ l_abs = function(x) {
 l_kobiet = function(x) {
   x %>%
     select(id_abs, rok_abs, .data$plec) %>%
-    filter(plec %in% "K") %>%
+    filter(plec == "K") %>%
     n_distinct() %>%
     return()
 }
@@ -187,7 +187,7 @@ zawody_status_S3 = function(x, rok_od, mies_od, rok_do, mies_do) {
       mutate(nazwa_zaw = "Ogółem") %>%
       select(nazwa_zaw, n:neet)
 
-    if (nrow(tab) %in% 0) {
+    if (nrow(tab) == 0) {
       return(list(n = 0, ucz_prac = NA, tylko_ucz = NA, tylko_prac = NA, bezrob = NA, neet = NA))
     } else {
       rbind(tab, tot) %>%
@@ -218,7 +218,7 @@ E2_nauka_kontyn = function(x, rok, mies = 12) {
   x = x %>%
     filter(okres %in% data_na_okres(mies, rok))
 
-  if (nrow(x) %in% 0) {
+  if (nrow(x) == 0) {
     return(list(n = 0, bs2 = NA, lodd = NA, spolic = NA, studia = NA, kkz = NA, kuz = NA, brak = NA))
   } else {
     nka = n_distinct(x$id_abs)
@@ -226,18 +226,18 @@ E2_nauka_kontyn = function(x, rok, mies = 12) {
     x %>%
       reframe(
         n = nka,
-        bs2 = sum(nauka_bs2st %in% 1, na.rm = TRUE) / nka,
-        lodd = sum(nauka_lodd %in% 1, na.rm = TRUE) / nka,
-        spolic = sum(nauka_spolic %in% 1, na.rm = TRUE) / nka,
-        studia = sum(nauka_studia %in% 1, na.rm = TRUE) / nka,
-        kkz = sum(nauka_kkz %in% 1, na.rm = TRUE) / nka,
-        kuz = sum(nauka_kuz %in% 1, na.rm = TRUE) / nka,
-        brak = sum(nauka_bs2st %in% 0 &
-                     nauka_lodd %in% 0 &
-                     nauka_spolic %in% 0 &
-                     nauka_studia %in% 0 &
-                     nauka_kkz %in% 0 &
-                     nauka_kuz %in% 0, na.rm = TRUE) / nka) %>%
+        bs2 = sum(nauka_bs2st == 1, na.rm = TRUE) / nka,
+        lodd = sum(nauka_lodd == 1, na.rm = TRUE) / nka,
+        spolic = sum(nauka_spolic == 1, na.rm = TRUE) / nka,
+        studia = sum(nauka_studia == 1, na.rm = TRUE) / nka,
+        kkz = sum(nauka_kkz == 1, na.rm = TRUE) / nka,
+        kuz = sum(nauka_kuz == 1, na.rm = TRUE) / nka,
+        brak = sum(nauka_bs2st == 0 &
+                     nauka_lodd == 0 &
+                     nauka_spolic == 0 &
+                     nauka_studia == 0 &
+                     nauka_kkz == 0 &
+                     nauka_kuz == 0, na.rm = TRUE) / nka) %>%
       as.list() %>%
       return()
   }
@@ -255,7 +255,7 @@ E2_nauka_kontyn = function(x, rok, mies = 12) {
 #' @param nauka wartość TRUE/FALSE określająca czy status ma być liczony dla
 #' absolwentów uczących się czy nie uczących się
 #' @return list
-#' @importFrom dplyr %>% filter count full_join mutate n_distinct between
+#' @importFrom dplyr %>% filter count left_join mutate n_distinct between
 #' @export
 Z4_ods_prac_mies = function(x, rok_od, mies_od = 9, rok_do, mies_do = 12, nauka) {
   stopifnot(is.data.frame(x),
@@ -269,31 +269,31 @@ Z4_ods_prac_mies = function(x, rok_od, mies_od = 9, rok_do, mies_do = 12, nauka)
   l_do = data_na_okres(rok = rok_do, mies = mies_do)
 
   x = x %>%
-    filter(.data$okres %in% seq(l_od, l_do, by = 1))
+    filter(okres %in% seq(l_od, l_do, by = 1))
 
   if (nauka) {
     ucz = x %>%
-      filter(.data$nauka2 %in% 1 | .data$nauka_szk_abs %in% 1) %>%
-      count(.data$okres, .data$id_abs) %>%
+      filter(nauka2 == 1 | nauka_szk_abs == 1) %>%
+      count(okres, id_abs) %>%
       count(id_abs, name = "l_mies_ucz")
 
     ucz_prac = x %>%
-      filter((.data$nauka2 %in% 1 | .data$nauka_szk_abs %in% 1) & .data$praca %in% c(1, 2, 4:7)) %>%
-      count(.data$id_abs, name = "l_mies_ucz_prac")
+      filter((nauka2 == 1 | nauka_szk_abs == 1) & praca %in% c(1, 2, 4:7)) %>%
+      count(id_abs, name = "l_mies_ucz_prac")
 
     nka = n_distinct(ucz$id_abs)
 
     if (nrow(ucz) > 0) {
       ucz %>%
-        full_join(ucz_prac, by = "id_abs") %>%
-        mutate(ods_ucz_prac = ifelse(is.na(.data$l_mies_ucz_prac), 0, .data$l_mies_ucz_prac / .data$l_mies_ucz)) %>%
+        left_join(ucz_prac, by = "id_abs") %>%
+        mutate(ods_ucz_prac = ifelse(is.na(l_mies_ucz_prac), 0, l_mies_ucz_prac / l_mies_ucz)) %>%
         reframe(
           n = nka,
-          srednia = mean(.data$ods_ucz_prac, na.rm = TRUE),
-          med = median(.data$ods_ucz_prac, na.rm = TRUE),
-          p0 = sum(.data$ods_ucz_prac == 0) / nka,
-          czesc = sum(.data$ods_ucz_prac > 0 & .data$ods_ucz_prac < 1) / nka,
-          p100 = sum(.data$ods_ucz_prac == 1) / nka) %>%
+          srednia = mean(ods_ucz_prac, na.rm = TRUE),
+          med = median(ods_ucz_prac, na.rm = TRUE),
+          p0 = sum(ods_ucz_prac == 0) / nka,
+          czesc = sum(ods_ucz_prac > 0 & ods_ucz_prac < 1) / nka,
+          p100 = sum(ods_ucz_prac == 1) / nka) %>%
         as.list() %>%
         return()
     } else {
@@ -301,27 +301,27 @@ Z4_ods_prac_mies = function(x, rok_od, mies_od = 9, rok_do, mies_do = 12, nauka)
     }
   } else {
     nucz = x %>%
-      filter(.data$nauka2 %in% 0) %>%
-      count(.data$okres, .data$id_abs) %>%
-      count(.data$id_abs, name = "l_mies_nucz")
+      filter(nauka2 == 0) %>%
+      count(okres, id_abs) %>%
+      count(id_abs, name = "l_mies_nucz")
 
     nucz_prac = x %>%
-      filter(.data$nauka2 %in% 0 & .data$praca > 0) %>%
-      count(.data$id_abs, name = "l_mies_nucz_prac")
+      filter(nauka2 == 0 & praca > 0) %>%
+      count(id_abs, name = "l_mies_nucz_prac")
 
     nka = n_distinct(nucz$id_abs)
 
     if (nrow(nucz) > 0) {
       nucz %>%
-        full_join(nucz_prac, by = "id_abs") %>%
-        mutate(ods_nucz_prac = ifelse(is.na(.data$l_mies_nucz_prac), 0, round(.data$l_mies_nucz_prac / .data$l_mies_nucz, 2))) %>%
+        left_join(nucz_prac, by = "id_abs") %>%
+        mutate(ods_nucz_prac = ifelse(is.na(l_mies_nucz_prac), 0, l_mies_nucz_prac / l_mies_nucz)) %>%
         reframe(
-          n = n_distinct(.data$id_abs),
-          srednia = mean(.data$ods_nucz_prac, na.rm = TRUE),
-          med = median(.data$ods_nucz_prac, na.rm = TRUE),
-          p0 = sum(.data$ods_nucz_prac == 0) / nka,
-          czesc = sum(.data$ods_nucz_prac > 0 & .data$ods_nucz_prac < 1) / nka,
-          p100 = sum(.data$ods_nucz_prac == 1) / nka) %>%
+          n = n_distinct(id_abs),
+          srednia = mean(ods_nucz_prac, na.rm = TRUE),
+          med = median(ods_nucz_prac, na.rm = TRUE),
+          p0 = sum(ods_nucz_prac == 0) / nka,
+          czesc = sum(ods_nucz_prac > 0 & ods_nucz_prac < 1) / nka,
+          p100 = sum(ods_nucz_prac == 1) / nka) %>%
         as.list() %>%
         return()
     } else {
@@ -366,45 +366,45 @@ Z8_formy_prac_mies = function(x, rok, mies = 12, nauka) {
             c("okres", "nauka2", "nauka_szk_abs") %in% names(x))
 
   x = x %>%
-    filter(.data$okres %in% data_na_okres(mies, rok)) %>%
-    mutate(forma = ind_Z8_formy_prac(.))
+    filter(.data$okres == data_na_okres(mies, rok)) %>%
+    mutate(forma = ind_Z8_formy_prac(pick(everything())))
 
-  if (nrow(x) %in% 0) {
+  if (nrow(x) == 0) {
     return(list(n = 0))
   } else {
     if (nauka) {
       nka = x %>%
-        filter((nauka2 %in% 1 | nauka_szk_abs %in% 1) & praca %in% c(1:7)) %>%
+        filter((nauka2 == 1 | nauka_szk_abs == 1) & praca %in% c(1:7)) %>%
         pull(id_abs) %>%
         n_distinct()
-      if (nka %in% 0) {
+      if (nka == 0) {
         return(list(n = 0, ucz_uop = 0, ucz_samoz = 0, ucz_inna = 0, ucz_wiecej = 0))
       } else {
         x %>%
           reframe(
             n = nka,
-            ucz_uop = sum((nauka2 %in% 1 | nauka_szk_abs %in% 1) & forma %in% "uop", na.rm = TRUE) / nka,
-            ucz_samoz = sum((nauka2 %in% 1 | nauka_szk_abs %in% 1) & forma %in% "samoz", na.rm = TRUE) / nka,
-            ucz_inna = sum((nauka2 %in% 1 | nauka_szk_abs %in% 1) & forma %in% "inna", na.rm = TRUE) / nka,
-            ucz_wiecej = sum((nauka2 %in% 1 | nauka_szk_abs %in% 1) & forma %in% "wiecej", na.rm = TRUE) / nka) %>%
+            ucz_uop = sum((nauka2 == 1 | nauka_szk_abs== 1) & forma == "uop", na.rm = TRUE) / nka,
+            ucz_samoz = sum((nauka2 == 1 | nauka_szk_abs == 1) & forma == "samoz", na.rm = TRUE) / nka,
+            ucz_inna = sum((nauka2 == 1 | nauka_szk_abs == 1) & forma == "inna", na.rm = TRUE) / nka,
+            ucz_wiecej = sum((nauka2 == 1 | nauka_szk_abs == 1) & forma == "wiecej", na.rm = TRUE) / nka) %>%
           as.list() %>%
           return()
       }
     } else {
       nka = x %>%
-        filter(nauka2 %in% 0 & praca %in% c(1:7)) %>%
+        filter(nauka2 == 0 & praca %in% c(1:7)) %>%
         pull(id_abs) %>%
         n_distinct()
-      if (nka %in% 0) {
+      if (nka == 0) {
         return(list(n = 0, nieucz_uop = 0, nieucz_samoz = 0, nieucz_inna = 0, nieucz_wiecej = 0))
       } else {
         x %>%
           reframe(
             n = nka,
-            nieucz_uop = sum(nauka2 %in% 0 & forma %in% "uop", na.rm = TRUE) / nka,
-            nieucz_samoz = sum(nauka2 %in% 0 & forma %in% "samoz", na.rm = TRUE) / nka,
-            nieucz_inna = sum(nauka2 %in% 0 & forma %in% "inna", na.rm = TRUE) / nka,
-            nieucz_wiecej = sum(nauka2 %in% 0 & forma %in% "wiecej", na.rm = TRUE) / nka) %>%
+            nieucz_uop = sum(nauka2 == 0 & forma == "uop", na.rm = TRUE) / nka,
+            nieucz_samoz = sum(nauka2 == 0 & forma == "samoz", na.rm = TRUE) / nka,
+            nieucz_inna = sum(nauka2 == 0 & forma == "inna", na.rm = TRUE) / nka,
+            nieucz_wiecej = sum(nauka2 == 0 & forma == "wiecej", na.rm = TRUE) / nka) %>%
           as.list() %>%
           return()
       }
@@ -444,18 +444,18 @@ Z9_kont_mlod = function(x, rok, mies = 9, nauka) {
             mies %in% c(1:12),
             is.logical(nauka))
 
-  if (any(unique(x$typ_szk) %in% "Branżowa szkoła I stopnia")) {
+  if (any(unique(x$typ_szk) == "Branżowa szkoła I stopnia")) {
     x = x %>%
-      filter(.data$okres %in% data_na_okres(mies, rok),
+      filter(.data$okres == data_na_okres(mies, rok),
              !is.na(.data$kont_mlodoc_prac))
 
-    if (nrow(x) %in% 0) {
+    if (nrow(x) == 0) {
       return(list(n = 0))
     } else {
       if (nauka) {
         x = x %>%
-          filter((.data$nauka2 %in% 1 | .data$nauka_szk_abs %in% 1) & .data$praca %in% c(1:7))
-        if (nrow(x) %in% 0) {
+          filter((.data$nauka2 == 1 | .data$nauka_szk_abs == 1) & .data$praca %in% c(1:7))
+        if (nrow(x) == 0) {
           return(list(n = 0))
         } else {
           nka = x %>%
@@ -465,15 +465,15 @@ Z9_kont_mlod = function(x, rok, mies = 9, nauka) {
           x %>%
             reframe(
               n = nka,
-              niekontuop = sum(.data$kont_mlodoc_prac %in% 4) / nka,
-              kontuop = sum(.data$kont_mlodoc_prac %in% 5) / nka) %>%
+              niekontuop = sum(.data$kont_mlodoc_prac == 4) / nka,
+              kontuop = sum(.data$kont_mlodoc_prac == 5) / nka) %>%
             as.list() %>%
             return()
         }
       } else {
         x = x %>%
-          filter(.data$nauka2 %in% 0 & .data$praca %in% c(1:7))
-        if (nrow(x) %in% 0) {
+          filter(.data$nauka2 == 0 & .data$praca %in% c(1:7))
+        if (nrow(x) == 0) {
           return(list(n = 0))
         } else {
           nka = x %>%
@@ -483,9 +483,9 @@ Z9_kont_mlod = function(x, rok, mies = 9, nauka) {
           x %>%
             reframe(
               n = nka,
-              niekontuop = sum(.data$kont_mlodoc_prac %in% 1) / nka,
-              kont_uop = sum(.data$kont_mlodoc_prac %in% 2) / nka,
-              kont_inne = sum(.data$kont_mlodoc_prac %in% 3) / nka) %>%
+              niekontuop = sum(.data$kont_mlodoc_prac == 1) / nka,
+              kont_uop = sum(.data$kont_mlodoc_prac == 2) / nka,
+              kont_inne = sum(.data$kont_mlodoc_prac == 3) / nka) %>%
             as.list() %>%
             return()
         }
@@ -540,7 +540,7 @@ W3_sr_doch_uop = function(x, rok_od, mies_od = 9, rok_do, mies_do = 12, nauka) {
   if (nrow(x) > 0) {
     if (nauka) {
       x = x %>%
-        filter((.data$nauka2 %in% 1 | .data$nauka_szk_abs %in% 1) & !is.na(.data$wynagrodzenie_uop) & !is.na(.data$powiat_sr_wynagrodzenie),
+        filter((.data$nauka2 == 1 | .data$nauka_szk_abs == 1) & !is.na(.data$wynagrodzenie_uop) & !is.na(.data$powiat_sr_wynagrodzenie),
                .data$wynagrodzenie_uop > 0,
                .data$powiat_sr_wynagrodzenie > 0)
 
@@ -569,7 +569,7 @@ W3_sr_doch_uop = function(x, rok_od, mies_od = 9, rok_do, mies_do = 12, nauka) {
         return()
     } else {
       x = x %>%
-        filter(.data$nauka2 %in% 0 & !is.na(.data$wynagrodzenie_uop) & !is.na(.data$powiat_sr_wynagrodzenie),
+        filter(.data$nauka2 == 0 & !is.na(.data$wynagrodzenie_uop) & !is.na(.data$powiat_sr_wynagrodzenie),
                .data$wynagrodzenie_uop > 0,
                .data$powiat_sr_wynagrodzenie > 0) %>%
         group_by(.data$id_abs, .data$okres)
@@ -628,13 +628,13 @@ B2_ods_bezrob = function(x, rok, od = 9, do = 12) {
     filter(.data$okres %in% seq(l_od, l_do, by = 1)) %>%
     group_by(.data$id_abs, .data$okres) %>%
     reframe(
-      l_mies_bezrob = sum(.data$bezrobocie %in% 1, na.rm = TRUE)
+      l_mies_bezrob = sum(.data$bezrobocie == 1, na.rm = TRUE)
     ) %>%
     mutate(across(.data$l_mies_bezrob,
                   ~ifelse(. > 1, 1, .))) %>%
     group_by(.data$id_abs) %>%
     reframe(
-      l_mies_bezrob = sum(.data$l_mies_bezrob %in% 1, na.rm = TRUE)
+      l_mies_bezrob = sum(.data$l_mies_bezrob == 1, na.rm = TRUE)
     )
 
   ods = x %>%
@@ -683,11 +683,11 @@ B2_ods_bezrob = function(x, rok, od = 9, do = 12) {
 liczebnosc_branze_ucz = function(x) {
   stopifnot(is.data.frame(x))
 
-  if (any(unique(x$typ_szk) %in% "Branżowa szkoła I stopnia")) {
+  if (any(unique(x$typ_szk) == "Branżowa szkoła I stopnia")) {
     x = x %>%
       filter(!(is.na(.data$branza)))
 
-    if (nrow(x) %in% 0) {
+    if (nrow(x) == 0) {
       return(list(n = 0))
     } else {
       n_dist = n_distinct(x$id_abs)
@@ -696,7 +696,7 @@ liczebnosc_branze_ucz = function(x) {
         count(.data$branza) %>%
         mutate(odsetek = .data$n / n_dist) %>%
         slice_max(n = 10, order_by = .data$n, with_ties = FALSE)
-      if (nrow(tab) %in% 0) {
+      if (nrow(tab) == 0) {
         return(list(n = 0))
       } else {
         tab %>%
@@ -736,9 +736,9 @@ liczebnosc_branze_kont = function(x, branza_kont_df, rok, mies = 12) {
             rok %in% c(2022, 2023),
             mies %in% c(1:12))
 
-  if (any(unique(x$typ_szk) %in% "Branżowa szkoła I stopnia")) {
+  if (any(unique(x$typ_szk) == "Branżowa szkoła I stopnia")) {
     x = x %>%
-      filter(.data$okres %in% data_na_okres(mies, rok)) %>%
+      filter(.data$okres == data_na_okres(mies, rok)) %>%
       left_join(branza_kont_df %>%
                   select(id_abs, rok_abs, branza_kont),
                 join_by(id_abs, rok_abs)) %>%
@@ -750,7 +750,7 @@ liczebnosc_branze_kont = function(x, branza_kont_df, rok, mies = 12) {
       count(.data$branza_kont) %>%
       mutate(odsetek = .data$n / n_dist) %>%
       slice_max(n = 10, order_by = .data$n, with_ties = FALSE)
-    if (nrow(tab) %in% 0) {
+    if (nrow(tab) == 0) {
       return(list(branza_kont = NA_character_, n = 0, odsetek = NA_integer_))
     } else {
       return(as.list(tab))
@@ -785,20 +785,19 @@ liczebnosc_dziedziny = function(x, dziedzina_kont_df, rok, mies = 12) {
   if (any(unique(x$typ_szk) %in% c("Technikum",
                                    "Liceum ogólnokształcące",
                                    "Branżowa szkoła II stopnia",
-                                   "Liceum ogólnokształcące",
                                    "Szkoła policealna"))) {
 
     dziedzina_kont_df = dziedzina_kont_df %>%
       select(id_abs, rok_abs, dziedzina_kont)
 
     x = x %>%
-      filter(.data$okres %in% data_na_okres(mies, rok)) %>%
+      filter(.data$okres == data_na_okres(mies, rok)) %>%
       left_join(dziedzina_kont_df,
                 join_by(id_abs, rok_abs)) %>%
-      filter(.data$nauka_studia %in% 1) %>%
+      filter(.data$nauka_studia == 1) %>%
       filter(!(is.na(.data$dziedzina_kont)))
 
-    if (nrow(x) %in% 0) {
+    if (nrow(x) == 0) {
       return(list(dziedzina_kont = NA_character_, n = 0, odsetek = NA_integer_))
     } else {
       n_dist = n_distinct(x$id_abs)
@@ -806,7 +805,7 @@ liczebnosc_dziedziny = function(x, dziedzina_kont_df, rok, mies = 12) {
       tab = x %>%
         count(.data$dziedzina_kont) %>%
         mutate(odsetek = .data$n / n_dist)
-      if (nrow(tab) %in% 0) {
+      if (nrow(tab) == 0) {
         return(list(dziedzina_kont = NA_character_, n = 0, odsetek = NA_integer_))
       } else {
         tab %>%
@@ -844,20 +843,19 @@ liczebnosc_dyscypliny = function(x, dyscyplina_kont_df, rok, mies = 12) {
   if (any(unique(x$typ_szk) %in% c("Technikum",
                                    "Liceum ogólnokształcące",
                                    "Branżowa szkoła II stopnia",
-                                   "Liceum ogólnokształcące",
                                    "Szkoła policealna"))) {
 
     dyscyplina_kont_df = dyscyplina_kont_df %>%
       select(id_abs, rok_abs, dyscyplina_wiodaca_kont)
 
     x = x %>%
-      filter(.data$okres %in% data_na_okres(mies, rok)) %>%
+      filter(.data$okres == data_na_okres(mies, rok)) %>%
       left_join(dyscyplina_kont_df,
                 join_by(id_abs, rok_abs)) %>%
-      filter(.data$nauka_studia %in% 1) %>%
+      filter(.data$nauka_studia == 1) %>%
       filter(!(is.na(.data$dyscyplina_wiodaca_kont)))
 
-    if (nrow(x) %in% 0) {
+    if (nrow(x) == 0) {
       return(list(dyscyplina_wiodaca_kont = NA_character_, n = 0, odsetek = NA_integer_))
     } else {
       n_dist = n_distinct(x$id_abs)
@@ -865,7 +863,7 @@ liczebnosc_dyscypliny = function(x, dyscyplina_kont_df, rok, mies = 12) {
       tab = x %>%
         count(.data$dyscyplina_wiodaca_kont) %>%
         mutate(odsetek = .data$n / n_dist)
-      if (nrow(tab) %in% 0) {
+      if (nrow(tab) == 0) {
         return(list(dyscyplina_wiodaca_kont = NA_character_, n = 0, odsetek = NA_integer_))
       } else {
         tab %>%
@@ -905,21 +903,20 @@ liczebnosc_dyscypliny_plec = function(x, dyscyplina_kont_df, rok, mies = 12, plc
   if (any(unique(x$typ_szk) %in% c("Technikum",
                                    "Liceum ogólnokształcące",
                                    "Branżowa szkoła II stopnia",
-                                   "Liceum ogólnokształcące",
                                    "Szkoła policealna"))) {
 
     dyscyplina_kont_df = dyscyplina_kont_df %>%
       select(id_abs, rok_abs, dyscyplina_wiodaca_kont, plec)
 
     x = x %>%
-      filter(.data$okres %in% data_na_okres(mies, rok)) %>%
+      filter(.data$okres == data_na_okres(mies, rok)) %>%
       left_join(dyscyplina_kont_df,
                 by = c("id_abs", "rok_abs")) %>%
-      filter(.data$plec %in% plc) %>%
-      filter(.data$nauka_studia %in% 1) %>%
+      filter(.data$plec == plc) %>%
+      filter(.data$nauka_studia == 1) %>%
       filter(!(is.na(.data$dyscyplina_wiodaca_kont)))
 
-    if (nrow(x) %in% 0) {
+    if (nrow(x) == 0) {
       return(list(dyscyplina_wiodaca_kont = NA_character_, n = 0, odsetek = NA_integer_))
     } else {
       n_dist = n_distinct(x$id_abs)
@@ -927,7 +924,7 @@ liczebnosc_dyscypliny_plec = function(x, dyscyplina_kont_df, rok, mies = 12, plc
       tab = x %>%
         count(.data$dyscyplina_wiodaca_kont) %>%
         mutate(odsetek = .data$n / n_dist)
-      if (nrow(tab) %in% 0) {
+      if (nrow(tab) == 0) {
         return(list(dyscyplina_wiodaca_kont = NA_character_, n = 0, odsetek = NA_integer_))
       } else {
         tab %>%
@@ -967,22 +964,20 @@ dyscypliny_zawody = function(x, dyscyplina_kont_df, rok, mies = 12) {
             mies %in% c(1:12))
 
   if (any(unique(x$typ_szk) %in% c("Technikum",
-                                   "Liceum ogólnokształcące",
-                                   "Branżowa szkoła II stopnia",
-                                   "Liceum ogólnokształcące",
-                                   "Szkoła policealna"))) {
+                                   "Szkoła policealna",
+                                   "Branżowa szkoła II stopnia"))) {
 
     dyscyplina_kont_df = dyscyplina_kont_df %>%
       select(id_abs, dyscyplina_wiodaca_kont)
 
     x = x %>%
-      filter(.data$okres %in% data_na_okres(mies, rok)) %>%
+      filter(.data$okres == data_na_okres(mies, rok)) %>%
       left_join(dyscyplina_kont_df,
                 join_by(id_abs)) %>%
-      filter(.data$nauka_studia %in% 1) %>%
+      filter(.data$nauka_studia == 1) %>%
       filter(!(is.na(.data$dyscyplina_wiodaca_kont)))
 
-    if (nrow(x) %in% 0) {
+    if (nrow(x) == 0) {
       return(list(dyscyplina_wiodaca_kont = NA_character_))
     } else {
       nki = x %>%
@@ -995,7 +990,7 @@ dyscypliny_zawody = function(x, dyscyplina_kont_df, rok, mies = 12) {
         group_by(.data$dyscyplina_wiodaca_kont) %>%
         count(.data$nazwa_zaw) %>%
         ungroup()
-      if (nrow(tab) %in% 0) {
+      if (nrow(tab) == 0) {
         return(list(dyscyplina_wiodaca_kont = NA_character_))
       } else {
         tab %>%
@@ -1038,18 +1033,20 @@ branze_zawody = function(x, branza_kont_df, rok, mies = 12) {
             rok %in% c(2022, 2023),
             mies %in% c(1:12))
 
-  if (any(unique(x$typ_szk) %in% c("Technikum", "Branżowa szkoła I stopnia", "Branżowa szkoła II stopnia"))) {
+  if (any(unique(x$typ_szk) %in% c("Technikum",
+                                   "Szkoła policealna",
+                                   "Branżowa szkoła II stopnia"))) {
 
     branza_kont_df = branza_kont_df %>%
       select(id_abs, branza_kont)
 
     x = x %>%
-      filter(.data$okres %in% data_na_okres(mies, rok)) %>%
+      filter(.data$okres == data_na_okres(mies, rok)) %>%
       left_join(branza_kont_df,
                 join_by(id_abs)) %>%
       filter(!(is.na(.data$branza_kont)))
 
-    if (nrow(x) %in% 0) {
+    if (nrow(x) == 0) {
       return(list(n = 0))
     } else {
       nki = x %>%
@@ -1061,7 +1058,7 @@ branze_zawody = function(x, branza_kont_df, rok, mies = 12) {
         group_by(.data$branza_kont) %>%
         count(.data$nazwa_zaw) %>%
         ungroup()
-      if (nrow(tab) %in% 0) {
+      if (nrow(tab) == 0) {
         return(list(n = 0))
       } else {
         tab %>%
@@ -1088,12 +1085,13 @@ branze_zawody = function(x, branza_kont_df, rok, mies = 12) {
 licz_zawody = function(x) {
   stopifnot(is.data.frame(x))
 
-  if (!any(unique(x$typ_szk) %in% c("Liceum ogólnokształcące", "Liceum dla dorosłych"))) {
+  if (!any(unique(x$typ_szk) %in% c("Liceum ogólnokształcące",
+                                    "Liceum dla dorosłych"))) {
 
     x = x %>%
       filter(!(is.na(.data$nazwa_zaw)))
 
-    if (nrow(x) %in% 0) {
+    if (nrow(x) == 0) {
       return(list(n = 0))
     } else {
       n_dist = n_distinct(x$id_abs)
